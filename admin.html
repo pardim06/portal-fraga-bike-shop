@@ -298,7 +298,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=7"></script>
+<script src="js/app.js?v=8"></script>
 <script>
   const session = Fraga.requireAdmin();
   if (session) {
@@ -573,10 +573,12 @@
     });
 
     /* ── Onboarding ───────────────────────────────────────────────── */
-    function renderOnb() {
+    async function renderOnb() {
       const list = $('#onbAdminList');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      const items = await state.getOnboardingDefs();
       list.innerHTML = '';
-      const items = state.getOnboardingDefs();
+      if (!items.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhuma etapa cadastrada ainda.'))); return; }
       items.forEach((s) => {
         const row = el('div', { class: 'row-card' },
           el('div', { class: 'row-icon tone-green', html: icon('check-circle') }),
@@ -585,21 +587,39 @@
             el('div', { class: 'row-meta' }, s.sector === 'Todos' ? 'Todos os setores' : s.sector)
           )
         );
-        const del = el('button', { class: 'btn btn-ghost btn-sm', html: icon('trash') });
-        del.addEventListener('click', () => { state.deleteOnboardingStep(s.id); renderOnb(); Fraga.toast('Etapa removida.'); });
+        const del = el('button', { class: 'icon-btn icon-btn-sm icon-btn-danger', html: icon('trash'), 'aria-label': 'Excluir etapa', title: 'Excluir' });
+        del.addEventListener('click', async () => {
+          const ok = await Fraga.confirmDialog({
+            title: 'Excluir etapa?',
+            message: `"${s.label}" deixará de aparecer na trilha de onboarding. Essa ação não pode ser desfeita.`,
+            confirmText: 'Excluir', cancelText: 'Cancelar', danger: true,
+          });
+          if (!ok) return;
+          try {
+            await state.deleteOnboardingStep(s.id);
+            renderOnb();
+            Fraga.toast('Etapa removida.');
+          } catch (err) {
+            Fraga.toast('Não foi possível excluir: ' + (err.message || err));
+          }
+        });
         row.appendChild(del);
         list.appendChild(row);
       });
     }
 
-    $('#onbForm').addEventListener('submit', (e) => {
+    $('#onbForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const label = $('#onbLabel').value.trim();
       if (!label) return;
-      state.addOnboardingStep({ id: Fraga.genId('s'), label, sector: $('#onbSector').value });
-      renderOnb();
-      Fraga.toast('Etapa adicionada à trilha de onboarding.');
-      e.target.reset();
+      try {
+        await state.addOnboardingStep({ label, sector: $('#onbSector').value });
+        renderOnb();
+        Fraga.toast('Etapa adicionada à trilha de onboarding.');
+        e.target.reset();
+      } catch (err) {
+        Fraga.toast('Não foi possível adicionar a etapa: ' + (err.message || err));
+      }
     });
 
     /* ── Segurança: colaboradores reais, vindos da tabela profiles ──── */

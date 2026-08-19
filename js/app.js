@@ -93,13 +93,6 @@
     { id: 'e5', name: 'Teste', role: 'Analista de E-commerce', sector: 'E-commerce', month: 8, day: 30 },
   ];
 
-  const ONBOARDING_STEPS = [
-    { id: 's1', label: 'Conheça nossa história', done: true },
-    { id: 's2', label: 'Conheça nossos valores', done: true },
-    { id: 's3', label: 'Leia o código de conduta', done: false },
-    { id: 's4', label: 'Conheça os procedimentos', done: false },
-    { id: 's5', label: 'Finalize seu treinamento', done: false },
-  ];
 
   const ONBOARDING_TOPICS = [
     { label: 'Nossa história', tone: 'orange', icon: 'building' },
@@ -187,7 +180,6 @@
     return seedArr.slice();
   }
 
-  const ONBOARDING_SEED_DONE = { s1: true, s2: true, s3: false, s4: false, s5: false };
 
   function genId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
@@ -306,34 +298,49 @@
     addEmployee(emp) { const list = this.getEmployees(); list.push(emp); writeList('fraga_employees', list); return list; },
     deleteEmployee(id) { const list = this.getEmployees().filter((e) => e.id !== id); writeList('fraga_employees', list); return list; },
 
-    /* Onboarding step definitions (label + sector): admin-managed. Per-user
-       completion (done/not) stays a separate localStorage record so editing
-       the checklist never wipes anyone's progress. */
-    getOnboardingDefs() { return readOrSeed('fraga_onb_defs', ONBOARDING_STEPS.map((s) => ({ id: s.id, label: s.label, sector: 'Todos' }))); },
-    addOnboardingStep(step) { const list = this.getOnboardingDefs(); list.push(step); writeList('fraga_onb_defs', list); return list; },
-    deleteOnboardingStep(id) {
-      const list = this.getOnboardingDefs().filter((s) => s.id !== id);
-      writeList('fraga_onb_defs', list);
-      writeList('fraga_onb_steps', readList('fraga_onb_steps').filter((s) => s.id !== id));
-      return list;
+    /* Onboarding: live in Supabase now (shared across the whole company).
+       Step definitions (label + sector) are admin-managed; each person's
+       completion (done/not) is a separate per-user record. */
+    async getOnboardingDefs() {
+      const { data, error } = await sb.from('onboarding_steps').select('*').order('created_at', { ascending: true });
+      if (error) { console.error(error); return []; }
+      return data.map((s) => ({ id: s.id, label: s.label, sector: s.sector }));
     },
-    onboardingStepsFor(session) {
-      return this.getOnboardingDefs().filter((s) => s.sector === 'Todos' || s.sector === session.sector);
+    async addOnboardingStep(step) {
+      const { error } = await sb.from('onboarding_steps').insert({ label: step.label, sector: step.sector || 'Todos' });
+      if (error) throw error;
     },
-    onboardingSteps(session) {
-      const defs = this.onboardingStepsFor(session);
-      const saved = readList('fraga_onb_steps');
-      const savedMap = {};
-      saved.forEach((s) => { savedMap[s.id] = s.done; });
-      return defs.map((d) => ({ id: d.id, done: d.id in savedMap ? savedMap[d.id] : !!ONBOARDING_SEED_DONE[d.id] }));
+    async deleteOnboardingStep(id) {
+      const { error } = await sb.from('onboarding_steps').delete().eq('id', id);
+      if (error) throw error;
     },
-    toggleOnboardingStep(id, session) {
-      const steps = this.onboardingSteps(session).map((s) => (s.id === id ? { ...s, done: !s.done } : s));
-      writeList('fraga_onb_steps', steps);
-      return steps;
+    async onboardingStepsFor(session) {
+      const defs = await this.getOnboardingDefs();
+      return defs.filter((s) => s.sector === 'Todos' || s.sector === session.sector);
     },
-    onboardingProgress(session) {
-      const steps = this.onboardingSteps(session);
+    async onboardingSteps(session) {
+      const defs = await this.onboardingStepsFor(session);
+      const { data: { user } } = await sb.auth.getUser();
+      let doneIds = [];
+      if (user) {
+        const { data } = await sb.from('onboarding_progress').select('step_id').eq('user_id', user.id);
+        doneIds = (data || []).map((r) => r.step_id);
+      }
+      return defs.map((d) => ({ id: d.id, done: doneIds.includes(d.id) }));
+    },
+    async toggleOnboardingStep(id, session) {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      const steps = await this.onboardingSteps(session);
+      const current = steps.find((s) => s.id === id);
+      if (current && current.done) {
+        await sb.from('onboarding_progress').delete().eq('user_id', user.id).eq('step_id', id);
+      } else {
+        await sb.from('onboarding_progress').upsert({ user_id: user.id, step_id: id, done: true });
+      }
+    },
+    async onboardingProgress(session) {
+      const steps = await this.onboardingSteps(session);
       if (!steps.length) return 0;
       const done = steps.filter((s) => s.done).length;
       return Math.round((done / steps.length) * 100);
@@ -520,7 +527,7 @@
   /* ── export ───────────────────────────────────────────────────────── */
   global.Fraga = {
     $, $$, el, icon,
-    ANNOUNCEMENTS, EMPLOYEES, ONBOARDING_STEPS, ONBOARDING_TOPICS, NAV_ITEMS, SECTORS,
+    ANNOUNCEMENTS, EMPLOYEES, ONBOARDING_TOPICS, NAV_ITEMS, SECTORS,
     DEMO_USER, ADMIN_USER, supabase: sb,
     getSession, setSession, clearSession, requireAuth, requireAdmin, redirectIfAuthed,
     state, formatDate, relativeDay, initials, avatarHtml, qs, toast, confirmDialog, mountShell, init, genId,

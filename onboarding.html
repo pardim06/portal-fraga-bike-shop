@@ -38,7 +38,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=7"></script>
+<script src="js/app.js?v=8"></script>
 <script>
   const session = Fraga.init('onboarding');
   if (session) {
@@ -55,18 +55,21 @@
       topicGrid.appendChild(card);
     });
 
-    function labelFor(id) { return (state.onboardingStepsFor(session).find((s) => s.id === id) || {}).label || ''; }
+    let stepDefs = [];
+    function labelFor(id) { return (stepDefs.find((s) => s.id === id) || {}).label || ''; }
 
-    function renderProgress() {
-      const pct = state.onboardingProgress(session);
+    async function renderProgress() {
+      const pct = await state.onboardingProgress(session);
       $('#progressFill').style.width = pct + '%';
       $('#progressSub').textContent = 'Seu onboarding está ' + pct + '% concluído' + (pct === 100 ? ' 🎉' : '');
     }
 
-    function renderChecklist() {
+    async function renderChecklist() {
       const list = $('#checklist');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      stepDefs = await state.onboardingStepsFor(session);
+      const steps = await state.onboardingSteps(session);
       list.innerHTML = '';
-      const steps = state.onboardingSteps(session);
       if (!steps.length) {
         list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhuma etapa de onboarding cadastrada ainda.')));
         return;
@@ -78,10 +81,13 @@
           el('span', { class: 'box', html: icon('check') }),
           el('span', { class: 'label' }, labelFor(step.id))
         );
-        label.querySelector('input').addEventListener('change', () => {
-          state.toggleOnboardingStep(step.id, session);
+        label.querySelector('input').addEventListener('change', async (e) => {
+          e.target.disabled = true;
+          await state.toggleOnboardingStep(step.id, session);
+          e.target.disabled = false;
           renderProgress();
-          const nowDone = state.onboardingSteps(session).find((s) => s.id === step.id).done;
+          const steps2 = await state.onboardingSteps(session);
+          const nowDone = steps2.find((s) => s.id === step.id).done;
           if (nowDone) Fraga.toast('Etapa concluída: ' + labelFor(step.id));
         });
         list.appendChild(label);

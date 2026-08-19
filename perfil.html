@@ -53,7 +53,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=7"></script>
+<script src="js/app.js?v=8"></script>
 <script>
   const session = Fraga.init('perfil');
   if (session) {
@@ -71,10 +71,11 @@
     $('#pSector').textContent = session.sector;
     $('#pSince').textContent = formatDate(session.since);
 
-    const pct = state.onboardingProgress(session);
-    $('#pOnbStatus').textContent = pct === 100 ? 'Concluído' : pct + '% concluído';
-    $('#statOnb').textContent = pct + '%';
-    $('#statDocs').textContent = state.readDocs().length + 11;
+    state.onboardingProgress(session).then((pct) => {
+      $('#pOnbStatus').textContent = pct === 100 ? 'Concluído' : pct + '% concluído';
+      $('#statOnb').textContent = pct + '%';
+    });
+    state.getReadDocIds().then((ids) => { $('#statDocs').textContent = ids.length + 11; });
     state.getReadAnnouncementIds().then((ids) => { $('#statAnn').textContent = ids.length + 17; });
 
     $('#editBtn').addEventListener('click', () => Fraga.toast('Edição de perfil disponível em breve.'));
