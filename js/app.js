@@ -102,7 +102,7 @@
     { key: 'comunicados', label: 'Comunicados', href: 'comunicados.html', icon: 'bell' },
     { key: 'aniversariantes', label: 'Aniversariantes', href: 'aniversariantes.html', icon: 'gift' },
     { key: 'onboarding', label: 'Onboarding', href: 'onboarding.html', icon: 'check-circle' },
-    { key: 'gestao', label: 'Gestão', href: 'gestao.html', icon: 'bar-chart' },
+    { key: 'gestao', label: 'Gestão', href: 'gestao.html', icon: 'bar-chart', adminOnly: true },
   ];
 
   /* ── session / auth ──────────────────────────────────────────────── */
@@ -445,7 +445,7 @@
       </div>
       <nav class="sidebar-nav" aria-label="Navegação principal">
         <span class="sidebar-section">Menu</span>
-        ${NAV_ITEMS.map((item) => `
+        ${NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin).map((item) => `
           <a class="sidebar-link" href="${item.href}" ${item.key === activeKey ? 'aria-current="page"' : ''}>
             ${icon(item.icon)}<span>${item.label}</span>
             ${item.key === 'comunicados' ? '<span class="count" data-unread-badge hidden></span>' : ''}

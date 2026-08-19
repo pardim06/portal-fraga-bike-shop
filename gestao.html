@@ -64,10 +64,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=9"></script>
+<script src="js/app.js?v=10"></script>
 <script>
   const session = Fraga.init('gestao');
   if (session) {
+    if (session.accessLevel !== 'admin') {
+      location.href = 'dashboard.html';
+    } else {
     const { $, el, state } = Fraga;
     state.getDocs().then((items) => { $('#kpiDocs').textContent = items.length; });
     state.getAnnouncements().then((items) => { $('#kpiAnn').textContent = items.length; });
@@ -100,6 +103,7 @@
       tr.innerHTML = `<td><strong>${r.who}</strong></td><td class="muted">${r.what}</td><td class="muted">${r.when}</td>`;
       body.appendChild(tr);
     });
+    }
   }
 </script>
 </body>
