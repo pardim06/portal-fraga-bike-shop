@@ -26,23 +26,23 @@
       <div class="kpi-grid" style="margin-bottom:32px;">
         <div class="kpi-card">
           <div class="kpi-top"><span class="kpi-label">Colaboradores ativos</span></div>
-          <div class="kpi-value">128</div>
-          <div class="kpi-delta up">▲ 4 este mês</div>
+          <div class="kpi-value" id="kpiUsers">...</div>
+          <div class="kpi-delta">cadastrados no portal</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-top"><span class="kpi-label">Documentos publicados</span></div>
           <div class="kpi-value" id="kpiDocs">...</div>
-          <div class="kpi-delta up">▲ 1 este mês</div>
+          <div class="kpi-delta">disponíveis no portal</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-top"><span class="kpi-label">Comunicados este mês</span></div>
           <div class="kpi-value" id="kpiAnn">...</div>
-          <div class="kpi-delta up">▲ 2 vs. julho</div>
+          <div class="kpi-delta" id="kpiAnnDelta"></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-top"><span class="kpi-label">Onboarding médio</span></div>
-          <div class="kpi-value">74%</div>
-          <div class="kpi-delta up">▲ 6 pts este mês</div>
+          <div class="kpi-value" id="kpiOnb">...</div>
+          <div class="kpi-delta">média de conclusão da equipe</div>
         </div>
       </div>
 
@@ -71,38 +71,123 @@
     if (session.accessLevel !== 'admin') {
       location.href = 'dashboard.html';
     } else {
-    const { $, el, state } = Fraga;
-    state.getDocs().then((items) => { $('#kpiDocs').textContent = items.length; });
-    state.getAnnouncements().then((items) => { $('#kpiAnn').textContent = items.length; });
+    const { $, el, state, SECTORS } = Fraga;
+    const sb = Fraga.supabase;
 
-    const sectorReads = [
-      { name: 'RH', pct: 92 },
-      { name: 'Comercial', pct: 88 },
-      { name: 'E-commerce', pct: 81 },
-      { name: 'Oficina', pct: 71 },
-      { name: 'Administrativo', pct: 65 },
-    ];
-    const barList = $('#barList');
-    sectorReads.forEach((s) => {
-      barList.appendChild(el('div', { class: 'bar-row' },
-        el('div', { class: 'name' }, s.name),
-        el('div', { class: 'bar-track' }, el('div', { class: 'bar-fill', style: 'width:' + s.pct + '%;' })),
-        el('div', { class: 'val' }, s.pct + '%')
-      ));
-    });
+    function timeAgo(iso) {
+      const diffMs = Date.now() - new Date(iso).getTime();
+      const mins = Math.round(diffMs / 60000);
+      if (mins < 1) return 'agora mesmo';
+      if (mins < 60) return `há ${mins} min`;
+      const hours = Math.round(mins / 60);
+      if (hours < 24) return `há ${hours}h`;
+      const days = Math.round(hours / 24);
+      if (days === 1) return 'ontem';
+      if (days < 7) return `há ${days} dias`;
+      const weeks = Math.round(days / 7);
+      if (weeks < 5) return `há ${weeks} semana${weeks > 1 ? 's' : ''}`;
+      return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+    }
 
-    const activity = [
-      { who: 'Bruno Ferreira', what: 'leu o comunicado "Novo horário de funcionamento"', when: 'há 2h' },
-      { who: 'Larissa Nunes', what: 'concluiu o onboarding', when: 'ontem' },
-      { who: 'Diego Souza', what: 'visualizou "Manual: Operação E-commerce"', when: 'há 2 dias' },
-      { who: 'Renata Alves', what: 'publicou "Política: Uso de EPIs na Oficina"', when: 'há 4 semanas' },
-    ];
-    const body = $('#activityBody');
-    activity.forEach((r) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td><strong>${r.who}</strong></td><td class="muted">${r.what}</td><td class="muted">${r.when}</td>`;
-      body.appendChild(tr);
-    });
+    (async () => {
+      const [{ data: profiles }, docs, { data: announcements }, { data: onbSteps }, { data: docReads }, { data: annReads }, { data: onbProgress }] = await Promise.all([
+        sb.from('profiles').select('id, name, sector'),
+        state.getDocs(),
+        sb.from('announcements').select('id, title, created_at'),
+        sb.from('onboarding_steps').select('id, label, sector'),
+        sb.from('document_reads').select('user_id, document_id, read_at'),
+        sb.from('announcement_reads').select('user_id, announcement_id, read_at'),
+        sb.from('onboarding_progress').select('user_id, step_id, completed_at'),
+      ]);
+
+      const profileList = profiles || [];
+      const profileById = {};
+      profileList.forEach((p) => { profileById[p.id] = p; });
+
+      // KPIs
+      $('#kpiUsers').textContent = profileList.length;
+      $('#kpiDocs').textContent = docs.length;
+
+      const now = new Date();
+      const isSameMonth = (iso, ref) => { const d = new Date(iso); return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth(); };
+      const lastMonthRef = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const annThisMonth = (announcements || []).filter((a) => isSameMonth(a.created_at, now)).length;
+      const annLastMonth = (announcements || []).filter((a) => isSameMonth(a.created_at, lastMonthRef)).length;
+      $('#kpiAnn').textContent = annThisMonth;
+      const annDelta = annThisMonth - annLastMonth;
+      const annDeltaEl = $('#kpiAnnDelta');
+      if (annDelta === 0) {
+        annDeltaEl.textContent = 'igual ao mês anterior';
+        annDeltaEl.className = 'kpi-delta';
+      } else {
+        annDeltaEl.textContent = (annDelta > 0 ? '▲ ' : '▼ ') + Math.abs(annDelta) + ' vs. mês anterior';
+        annDeltaEl.className = 'kpi-delta ' + (annDelta > 0 ? 'up' : 'down');
+      }
+
+      // Onboarding médio: média do progresso individual de cada colaborador
+      let onbSum = 0;
+      profileList.forEach((p) => {
+        const applicable = (onbSteps || []).filter((s) => s.sector === 'Todos' || s.sector === p.sector);
+        if (!applicable.length) return;
+        const applicableIds = applicable.map((s) => s.id);
+        const done = (onbProgress || []).filter((r) => r.user_id === p.id && applicableIds.includes(r.step_id)).length;
+        onbSum += (done / applicable.length) * 100;
+      });
+      $('#kpiOnb').textContent = profileList.length ? Math.round(onbSum / profileList.length) + '%' : '0%';
+
+      // Leitura de documentos por setor
+      const barList = $('#barList');
+      barList.innerHTML = '';
+      SECTORS.forEach((sector) => {
+        const sectorUsers = profileList.filter((p) => p.sector === sector);
+        const applicableDocs = docs.filter((d) => !d.restricted || d.sector === sector);
+        const possible = sectorUsers.length * applicableDocs.length;
+        const userIds = new Set(sectorUsers.map((u) => u.id));
+        const docIds = new Set(applicableDocs.map((d) => d.id));
+        const actual = (docReads || []).filter((r) => userIds.has(r.user_id) && docIds.has(r.document_id)).length;
+        const pct = possible ? Math.round((actual / possible) * 100) : 0;
+        barList.appendChild(el('div', { class: 'bar-row' },
+          el('div', { class: 'name' }, sector),
+          el('div', { class: 'bar-track' }, el('div', { class: 'bar-fill', style: 'width:' + pct + '%;' })),
+          el('div', { class: 'val' }, pct + '%')
+        ));
+      });
+
+      // Atividade recente
+      const docById = {}; docs.forEach((d) => { docById[d.id] = d; });
+      const annById = {}; (announcements || []).forEach((a) => { annById[a.id] = a; });
+      const stepById = {}; (onbSteps || []).forEach((s) => { stepById[s.id] = s; });
+
+      const events = [];
+      (docReads || []).forEach((r) => {
+        const who = profileById[r.user_id]; const doc = docById[r.document_id];
+        if (!who || !doc) return;
+        events.push({ who: who.name, what: `visualizou "${doc.title}"`, when: r.read_at });
+      });
+      (annReads || []).forEach((r) => {
+        const who = profileById[r.user_id]; const ann = annById[r.announcement_id];
+        if (!who || !ann) return;
+        events.push({ who: who.name, what: `leu o comunicado "${ann.title}"`, when: r.read_at });
+      });
+      (onbProgress || []).forEach((r) => {
+        const who = profileById[r.user_id]; const step = stepById[r.step_id];
+        if (!who || !step) return;
+        events.push({ who: who.name, what: `concluiu a etapa "${step.label}" do onboarding`, when: r.completed_at });
+      });
+      events.sort((a, b) => new Date(b.when) - new Date(a.when));
+
+      const body = $('#activityBody');
+      body.innerHTML = '';
+      if (!events.length) {
+        body.innerHTML = '<tr><td colspan="3" class="muted">Nenhuma atividade registrada ainda.</td></tr>';
+      } else {
+        events.slice(0, 8).forEach((r) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td><strong>${r.who}</strong></td><td class="muted">${r.what}</td><td class="muted">${timeAgo(r.when)}</td>`;
+          body.appendChild(tr);
+        });
+      }
+    })();
     }
   }
 </script>
