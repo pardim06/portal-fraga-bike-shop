@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meu Perfil | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="perfil">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Conta</span>
+        <h1 class="page-title">Meu perfil</h1>
+      </div>
+
+      <div class="panel card-pad">
+        <div class="profile-head">
+          <div id="pAvatarWrap"></div>
+          <div style="flex:1;min-width:220px;">
+            <div class="profile-name" id="pName"></div>
+            <div class="profile-role" id="pRole"></div>
+            <div class="profile-email" id="pEmail"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="editBtn">Editar perfil</button>
+        </div>
+
+        <div class="info-grid" style="margin-bottom:36px;padding-bottom:30px;border-bottom:1px solid var(--line);">
+          <div class="info-item"><div class="k">Setor</div><div class="v" id="pSector"></div></div>
+          <div class="info-item"><div class="k">Admissão</div><div class="v" id="pSince"></div></div>
+          <div class="info-item"><div class="k">Status do onboarding</div><div class="v" id="pOnbStatus"></div></div>
+          <div class="info-item"><div class="k">Último acesso</div><div class="v">hoje</div></div>
+        </div>
+
+        <h3 style="font-size:16px;margin-bottom:18px;">Minha atividade</h3>
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-num" id="statDocs">0</div><div class="stat-label">Documentos visualizados</div></div>
+          <div class="stat-card"><div class="stat-num" id="statAnn">0</div><div class="stat-label">Comunicados lidos</div></div>
+          <div class="stat-card"><div class="stat-num" id="statOnb">0%</div><div class="stat-label">Onboarding concluído</div></div>
+          <div class="stat-card"><div class="stat-num">hoje</div><div class="stat-label">Última atividade</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('perfil');
+  if (session) {
+    const { $, state, formatDate } = Fraga;
+
+    $('#pAvatarWrap').innerHTML = Fraga.avatarHtml
+      ? Fraga.avatarHtml(session, '')
+      : '';
+    const pAvatar = $('#pAvatarWrap').firstElementChild;
+    if (pAvatar) { pAvatar.style.width = '92px'; pAvatar.style.height = '92px'; pAvatar.style.fontSize = '26px'; }
+
+    $('#pName').textContent = session.name;
+    $('#pRole').textContent = session.role + ' · Setor ' + session.sector;
+    $('#pEmail').textContent = session.email;
+    $('#pSector').textContent = session.sector;
+    $('#pSince').textContent = formatDate(session.since);
+
+    const pct = state.onboardingProgress(session);
+    $('#pOnbStatus').textContent = pct === 100 ? 'Concluído' : pct + '% concluído';
+    $('#statOnb').textContent = pct + '%';
+    $('#statDocs').textContent = state.readDocs().length + 11;
+    state.getReadAnnouncementIds().then((ids) => { $('#statAnn').textContent = ids.length + 17; });
+
+    $('#editBtn').addEventListener('click', () => Fraga.toast('Edição de perfil disponível em breve.'));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestão | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="gestao">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Gestão</span>
+        <h1 class="page-title">Visão administrativa</h1>
+        <p class="page-sub">Indicadores gerais de uso do portal pela equipe.</p>
+      </div>
+
+      <div class="kpi-grid" style="margin-bottom:32px;">
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Colaboradores ativos</span></div>
+          <div class="kpi-value">128</div>
+          <div class="kpi-delta up">▲ 4 este mês</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Documentos publicados</span></div>
+          <div class="kpi-value" id="kpiDocs">...</div>
+          <div class="kpi-delta up">▲ 1 este mês</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Comunicados este mês</span></div>
+          <div class="kpi-value" id="kpiAnn">...</div>
+          <div class="kpi-delta up">▲ 2 vs. julho</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-top"><span class="kpi-label">Onboarding médio</span></div>
+          <div class="kpi-value">74%</div>
+          <div class="kpi-delta up">▲ 6 pts este mês</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="card card-pad">
+          <h3 style="font-size:15px;margin-bottom:20px;">Leitura de documentos por setor</h3>
+          <div class="bar-list" id="barList"></div>
+        </div>
+        <div class="card card-pad">
+          <h3 style="font-size:15px;margin-bottom:16px;">Atividade recente</h3>
+          <table class="data-table">
+            <thead><tr><th>Colaborador</th><th>Ação</th><th>Quando</th></tr></thead>
+            <tbody id="activityBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('gestao');
+  if (session) {
+    const { $, el, state } = Fraga;
+    $('#kpiDocs').textContent = state.getDocs().length;
+    state.getAnnouncements().then((items) => { $('#kpiAnn').textContent = items.length; });
+
+    const sectorReads = [
+      { name: 'RH', pct: 92 },
+      { name: 'Comercial', pct: 88 },
+      { name: 'E-commerce', pct: 81 },
+      { name: 'Oficina', pct: 71 },
+      { name: 'Administrativo', pct: 65 },
+    ];
+    const barList = $('#barList');
+    sectorReads.forEach((s) => {
+      barList.appendChild(el('div', { class: 'bar-row' },
+        el('div', { class: 'name' }, s.name),
+        el('div', { class: 'bar-track' }, el('div', { class: 'bar-fill', style: 'width:' + s.pct + '%;' })),
+        el('div', { class: 'val' }, s.pct + '%')
+      ));
+    });
+
+    const activity = [
+      { who: 'Bruno Ferreira', what: 'leu o comunicado "Novo horário de funcionamento"', when: 'há 2h' },
+      { who: 'Larissa Nunes', what: 'concluiu o onboarding', when: 'ontem' },
+      { who: 'Diego Souza', what: 'visualizou "Manual: Operação E-commerce"', when: 'há 2 dias' },
+      { who: 'Renata Alves', what: 'publicou "Política: Uso de EPIs na Oficina"', when: 'há 4 semanas' },
+    ];
+    const body = $('#activityBody');
+    activity.forEach((r) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><strong>${r.who}</strong></td><td class="muted">${r.what}</td><td class="muted">${r.when}</td>`;
+      body.appendChild(tr);
+    });
+  }
+</script>
+</body>
+</html>

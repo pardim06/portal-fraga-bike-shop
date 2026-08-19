@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel Admin | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="admin">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Administração</span>
+        <h1 class="page-title">Painel Admin</h1>
+        <p class="page-sub">Gerencie documentos, comunicados, aniversariantes, onboarding e permissões do portal.</p>
+      </div>
+
+      <div class="admin-tabs" id="adminTabs">
+        <button class="chip" type="button" data-tab="docs" aria-pressed="true">Documentos</button>
+        <button class="chip" type="button" data-tab="ann" aria-pressed="false">Comunicados</button>
+        <button class="chip" type="button" data-tab="emp" aria-pressed="false">Aniversariantes</button>
+        <button class="chip" type="button" data-tab="onb" aria-pressed="false">Onboarding</button>
+        <button class="chip" type="button" data-tab="sec" aria-pressed="false">Segurança</button>
+      </div>
+
+      <!-- Documentos -->
+      <section class="admin-panel" data-panel="docs">
+        <div class="two-col">
+          <div class="card card-pad">
+            <h3 class="admin-form-title" id="docFormTitle"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 16l-4-4-4 4"/><path d="M12 12v9"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg> <span>Publicar documento</span></h3>
+            <form id="docForm">
+              <div class="field">
+                <label for="docTitle">Título</label>
+                <input type="text" id="docTitle" placeholder="Ex.: POP: Recebimento de Mercadorias" required />
+              </div>
+              <div class="admin-field-row">
+                <div class="field">
+                  <label for="docCategory">Categoria</label>
+                  <select id="docCategory">
+                    <option value="POPs">POPs</option>
+                    <option value="Manuais">Manuais</option>
+                    <option value="Políticas">Políticas</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="docSector">Setor</label>
+                  <select id="docSector"></select>
+                </div>
+              </div>
+              <div class="field" style="max-width:220px;">
+                <label for="docVersion">Versão</label>
+                <input type="text" id="docVersion" value="v1.0" />
+              </div>
+
+              <div class="field">
+                <label for="docFile">Arquivo (opcional)</label>
+                <label class="file-drop" id="docFileDrop">
+                  <input type="file" id="docFile" class="file-drop-input" />
+                  <span class="file-drop-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 16l-4-4-4 4"/><path d="M12 12v9"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></span>
+                  <span class="file-drop-text">
+                    <strong>Clique para escolher um arquivo</strong>
+                    <span>ou arraste e solte aqui &middot; até 3 MB</span>
+                  </span>
+                </label>
+                <div class="file-chip" id="docFileChip" hidden>
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span class="name" id="docFileName"></span>
+                  <span class="size" id="docFileSize"></span>
+                  <button type="button" id="docFileRemove" aria-label="Remover arquivo">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <label class="checkline" style="margin-bottom:20px;">
+                <input type="checkbox" id="docRestricted" /> Restringir a visualização apenas ao setor selecionado
+              </label>
+              <p class="hint" id="docFileEditHint" style="margin-bottom:14px;" hidden>Deixe sem escolher arquivo para manter o arquivo atual.</p>
+              <button type="submit" class="btn btn-primary btn-block" id="docFormSubmit">Publicar documento</button>
+              <button type="button" class="btn btn-ghost btn-block" id="docFormCancel" style="margin-top:10px;" hidden>Cancelar edição</button>
+            </form>
+          </div>
+          <div class="card card-pad">
+            <h3 class="admin-form-title">Documentos publicados</h3>
+            <div class="list-stack" id="docsAdminList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comunicados -->
+      <section class="admin-panel" data-panel="ann" hidden>
+        <div class="two-col">
+          <div class="card card-pad">
+            <h3 class="admin-form-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Novo comunicado</h3>
+            <form id="annForm">
+              <div class="field">
+                <label for="annTitle">Título</label>
+                <input type="text" id="annTitle" placeholder="Ex.: Manutenção do sistema neste fim de semana" required />
+              </div>
+              <div class="admin-field-row">
+                <div class="field">
+                  <label for="annTag">Prioridade</label>
+                  <select id="annTag">
+                    <option value="geral">Geral</option>
+                    <option value="importante">Importante</option>
+                    <option value="urgente">Urgente</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="annAuthor">Autor / Setor</label>
+                  <input type="text" id="annAuthor" placeholder="Ex.: RH" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="annBody">Mensagem</label>
+                <textarea id="annBody" rows="4" placeholder="Texto completo do comunicado" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Publicar comunicado</button>
+            </form>
+          </div>
+          <div class="card card-pad">
+            <h3 class="admin-form-title">Comunicados publicados</h3>
+            <div class="list-stack" id="annAdminList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Aniversariantes -->
+      <section class="admin-panel" data-panel="emp" hidden>
+        <div class="two-col">
+          <div class="card card-pad">
+            <h3 class="admin-form-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg> Novo aniversariante</h3>
+            <form id="empForm">
+              <div class="field">
+                <label for="empName">Nome</label>
+                <input type="text" id="empName" placeholder="Nome completo" required />
+              </div>
+              <div class="admin-field-row">
+                <div class="field">
+                  <label for="empRole">Cargo</label>
+                  <input type="text" id="empRole" placeholder="Ex.: Analista" required />
+                </div>
+                <div class="field">
+                  <label for="empSector">Setor</label>
+                  <select id="empSector"></select>
+                </div>
+              </div>
+              <div class="admin-field-row-3">
+                <div class="field">
+                  <label for="empDay">Dia</label>
+                  <input type="number" id="empDay" min="1" max="31" placeholder="17" required />
+                </div>
+                <div class="field">
+                  <label for="empMonth">Mês</label>
+                  <select id="empMonth">
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8" selected>Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="empYear">Ano (opcional)</label>
+                  <select id="empYear">
+                    <option value="">Não informar</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block" style="margin-top:20px;">Adicionar aniversariante</button>
+            </form>
+          </div>
+          <div class="card card-pad">
+            <h3 class="admin-form-title">Equipe cadastrada</h3>
+            <div class="list-stack" id="empAdminList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Onboarding -->
+      <section class="admin-panel" data-panel="onb" hidden>
+        <div class="two-col">
+          <div class="card card-pad">
+            <h3 class="admin-form-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nova etapa de onboarding</h3>
+            <form id="onbForm">
+              <div class="field">
+                <label for="onbLabel">Texto da etapa</label>
+                <input type="text" id="onbLabel" placeholder="Ex.: Conheça o fluxo de trocas do E-commerce" required />
+              </div>
+              <div class="field">
+                <label for="onbSector">Aplicar a</label>
+                <select id="onbSector">
+                  <option value="Todos">Todos os setores</option>
+                </select>
+              </div>
+              <span class="hint" style="display:block;margin-top:-12px;margin-bottom:16px;">Etapas de um setor específico só aparecem para colaboradores desse setor.</span>
+              <button type="submit" class="btn btn-primary btn-block">Adicionar etapa</button>
+            </form>
+          </div>
+          <div class="card card-pad">
+            <h3 class="admin-form-title">Trilha de onboarding</h3>
+            <div class="list-stack" id="onbAdminList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Segurança -->
+      <section class="admin-panel" data-panel="sec" hidden>
+        <div class="two-col">
+          <div class="card card-pad">
+            <h3 class="admin-form-title" id="userFormTitle"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg> <span>Cadastrar colaborador</span></h3>
+            <form id="userForm">
+              <div class="field">
+                <label for="userName">Nome completo</label>
+                <input type="text" id="userName" placeholder="Nome completo" required />
+              </div>
+              <div class="field">
+                <label for="userPhoto">Foto (opcional)</label>
+                <label class="file-drop" id="userPhotoDrop" style="padding:18px;">
+                  <input type="file" id="userPhoto" class="file-drop-input" accept="image/*" />
+                  <span class="file-drop-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span>
+                  <span class="file-drop-text">
+                    <strong>Clique para escolher uma foto</strong>
+                    <span>JPG ou PNG, até 2 MB</span>
+                  </span>
+                </label>
+                <div class="file-chip" id="userPhotoChip" hidden>
+                  <img id="userPhotoPreview" alt="" style="width:28px;height:28px;border-radius:999px;object-fit:cover;flex-shrink:0;" />
+                  <span class="name" id="userPhotoName"></span>
+                  <button type="button" id="userPhotoRemove" aria-label="Remover foto">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="userEmail">E-mail</label>
+                <input type="email" id="userEmail" placeholder="colaborador@fragabikeshop.com.br" required />
+              </div>
+              <div class="field">
+                <label for="userPassword" id="userPasswordLabel">Senha provisória</label>
+                <div class="field-input-wrap">
+                  <input type="text" id="userPassword" placeholder="Mínimo 6 caracteres" />
+                  <button type="button" class="field-toggle" id="genPassword" aria-label="Gerar senha">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  </button>
+                </div>
+                <span class="hint" id="userPasswordHint">Compartilhe essa senha com a pessoa fora daqui; ela pode trocar depois.</span>
+              </div>
+              <div class="admin-field-row">
+                <div class="field">
+                  <label for="userSector">Setor</label>
+                  <select id="userSector"></select>
+                </div>
+                <div class="field">
+                  <label for="userRole">Cargo</label>
+                  <input type="text" id="userRole" placeholder="Ex.: Analista" required />
+                </div>
+              </div>
+              <div class="field">
+                <label for="userAccessLevel">Nível de acesso</label>
+                <select id="userAccessLevel">
+                  <option value="colaborador">Colaborador</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </div>
+              <p class="auth-error" id="userFormError" hidden></p>
+              <button type="submit" class="btn btn-primary btn-block" id="userFormSubmit">Cadastrar e criar acesso</button>
+              <button type="button" class="btn btn-ghost btn-block" id="userFormCancel" style="margin-top:10px;" hidden>Cancelar edição</button>
+            </form>
+          </div>
+          <div class="card card-pad">
+            <h3 class="admin-form-title">Colaboradores com acesso</h3>
+            <table class="data-table">
+              <thead><tr><th>Colaborador</th><th>Setor</th><th>Nível de acesso</th><th></th></tr></thead>
+              <tbody id="secList"></tbody>
+            </table>
+            <p class="hint" style="margin-top:16px;">Documentos também podem ser restritos por setor na aba Documentos.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.requireAdmin();
+  if (session) {
+    Fraga.mountShell('admin');
+    const { $, $$, el, icon, state, formatDate, SECTORS, initials } = Fraga;
+
+    // Populate sector selects.
+    ['docSector', 'empSector'].forEach((id) => {
+      const sel = $('#' + id);
+      SECTORS.forEach((s) => sel.appendChild(new Option(s, s)));
+    });
+    SECTORS.forEach((s) => $('#onbSector').appendChild(new Option(s, s)));
+
+    const currentYear = 2026;
+    for (let y = currentYear; y >= currentYear - 65; y--) $('#empYear').appendChild(new Option(String(y), String(y)));
+
+    /* ── Tabs ─────────────────────────────────────────────────────── */
+    $$('[data-tab]', $('#adminTabs')).forEach((btn) => {
+      btn.addEventListener('click', () => {
+        $$('[data-tab]', $('#adminTabs')).forEach((b) => b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'));
+        $$('.admin-panel').forEach((p) => { p.hidden = p.dataset.panel !== btn.dataset.tab; });
+      });
+    });
+
+    /* ── Documentos ───────────────────────────────────────────────── */
+    const docFile = $('#docFile');
+    const docFileDrop = $('#docFileDrop');
+    const docFileChip = $('#docFileChip');
+
+    function formatFileSize(bytes) {
+      return bytes < 1024 * 1024 ? Math.round(bytes / 1024) + ' KB' : (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function showSelectedFile(file) {
+      if (!file) {
+        docFileChip.hidden = true;
+        docFileDrop.hidden = false;
+        return;
+      }
+      $('#docFileName').textContent = file.name;
+      $('#docFileSize').textContent = formatFileSize(file.size);
+      docFileChip.hidden = false;
+      docFileDrop.hidden = true;
+    }
+
+    function clearSelectedFile() {
+      docFile.value = '';
+      showSelectedFile(null);
+    }
+
+    docFile.addEventListener('change', () => showSelectedFile(docFile.files[0]));
+
+    $('#docFileRemove').addEventListener('click', clearSelectedFile);
+
+    ['dragover', 'dragenter'].forEach((evt) => {
+      docFileDrop.addEventListener(evt, (e) => { e.preventDefault(); docFileDrop.classList.add('is-dragover'); });
+    });
+    ['dragleave', 'dragend'].forEach((evt) => {
+      docFileDrop.addEventListener(evt, () => docFileDrop.classList.remove('is-dragover'));
+    });
+    docFileDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      docFileDrop.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) {
+        docFile.files = e.dataTransfer.files;
+        showSelectedFile(docFile.files[0]);
+      }
+    });
+
+    let editingDocId = null;
+
+    function renderDocs() {
+      const list = $('#docsAdminList');
+      list.innerHTML = '';
+      const docs = state.getDocs();
+      if (!docs.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhum documento publicado ainda.'))); return; }
+      docs.forEach((d) => {
+        const row = el('div', { class: 'row-card' },
+          el('div', { class: 'row-icon tone-' + d.tone, html: icon('file-text') }),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, d.title),
+            el('div', { class: 'row-meta' },
+              d.sector, el('span', { class: 'dot' }, '·'), d.category, el('span', { class: 'dot' }, '·'), d.version,
+              d.restricted ? el('span', { class: 'badge badge-outline', style: 'margin-left:10px;' }, 'Restrito ao setor') : ''
+            )
+          )
+        );
+        const actions = el('div', { style: 'display:flex;gap:8px;flex-shrink:0;' });
+        const editBtn = el('button', { class: 'icon-btn icon-btn-sm', html: icon('pencil'), 'aria-label': 'Editar documento', title: 'Editar' });
+        editBtn.addEventListener('click', () => enterDocEditMode(d));
+        const del = el('button', { class: 'icon-btn icon-btn-sm icon-btn-danger', html: icon('trash'), 'aria-label': 'Excluir documento', title: 'Excluir' });
+        del.addEventListener('click', async () => {
+          const ok = await Fraga.confirmDialog({
+            title: 'Excluir documento?',
+            message: `"${d.title}" deixará de aparecer para os colaboradores. Essa ação não pode ser desfeita.`,
+            confirmText: 'Excluir', cancelText: 'Cancelar', danger: true,
+          });
+          if (!ok) return;
+          state.deleteDoc(d.id);
+          if (editingDocId === d.id) exitDocEditMode();
+          renderDocs();
+          Fraga.toast('Documento removido.');
+        });
+        actions.appendChild(editBtn);
+        actions.appendChild(del);
+        row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
+    function enterDocEditMode(d) {
+      editingDocId = d.id;
+      $('#docFormTitle span').textContent = 'Editar documento';
+      $('#docTitle').value = d.title;
+      $('#docCategory').value = d.category;
+      $('#docSector').value = d.sector;
+      $('#docVersion').value = d.version;
+      $('#docRestricted').checked = !!d.restricted;
+      clearSelectedFile();
+      $('#docFileEditHint').hidden = false;
+      $('#docFormSubmit').textContent = 'Salvar alterações';
+      $('#docFormCancel').hidden = false;
+      $('#docForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function exitDocEditMode() {
+      editingDocId = null;
+      $('#docForm').reset();
+      $('#docFormTitle span').textContent = 'Publicar documento';
+      $('#docVersion').value = 'v1.0';
+      clearSelectedFile();
+      $('#docFileEditHint').hidden = true;
+      $('#docFormSubmit').textContent = 'Publicar documento';
+      $('#docFormCancel').hidden = true;
+    }
+
+    $('#docFormCancel').addEventListener('click', exitDocEditMode);
+
+    $('#docForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = $('#docTitle').value.trim();
+      if (!title) return;
+      const category = $('#docCategory').value;
+      const tone = category === 'POPs' ? 'orange' : category === 'Manuais' ? 'blue' : 'green';
+      const finish = (fileData, fileName, hasNewFile) => {
+        if (editingDocId) {
+          const patch = {
+            title, category, sector: $('#docSector').value,
+            version: $('#docVersion').value.trim() || 'v1.0',
+            updatedAt: new Date().toISOString().slice(0, 10),
+            tone, restricted: $('#docRestricted').checked,
+          };
+          if (hasNewFile) { patch.fileData = fileData; patch.fileName = fileName; }
+          state.updateDoc(editingDocId, patch);
+          Fraga.toast('Documento atualizado.');
+          exitDocEditMode();
+        } else {
+          state.addDoc({
+            id: Fraga.genId('d'), title, category, sector: $('#docSector').value,
+            version: $('#docVersion').value.trim() || 'v1.0',
+            updatedAt: new Date().toISOString().slice(0, 10),
+            owner: session.name, tone, restricted: $('#docRestricted').checked,
+            fileData: fileData || null, fileName: fileName || null,
+          });
+          Fraga.toast('Documento publicado.');
+          e.target.reset();
+          $('#docVersion').value = 'v1.0';
+          clearSelectedFile();
+        }
+        renderDocs();
+      };
+      const file = docFile.files[0];
+      if (file) {
+        if (file.size > 3 * 1024 * 1024) { Fraga.toast('Arquivo muito grande para este ambiente de demonstração (máx. 3 MB).'); return; }
+        const reader = new FileReader();
+        reader.onload = () => finish(reader.result, file.name, true);
+        reader.readAsDataURL(file);
+      } else {
+        finish(null, null, false);
+      }
+    });
+
+    /* ── Comunicados ──────────────────────────────────────────────── */
+    async function renderAnn() {
+      const list = $('#annAdminList');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      const items = await state.getAnnouncements();
+      list.innerHTML = '';
+      if (!items.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhum comunicado publicado ainda.'))); return; }
+      items.forEach((a) => {
+        const row = el('div', { class: 'row-card' },
+          el('div', { class: 'row-icon tone-orange', html: icon('bell') }),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, a.title),
+            el('div', { class: 'row-meta' }, a.author, el('span', { class: 'dot' }, '·'), formatDate(a.date), el('span', { class: 'badge badge-' + a.tag, style: 'margin-left:10px;' }, a.tag))
+          )
+        );
+        const del = el('button', { class: 'btn btn-ghost btn-sm', html: icon('trash') });
+        del.addEventListener('click', async () => {
+          await state.deleteAnnouncement(a.id);
+          renderAnn();
+          Fraga.mountShell('admin');
+          Fraga.toast('Comunicado removido.');
+        });
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+
+    $('#annForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = $('#annTitle').value.trim();
+      const author = $('#annAuthor').value.trim();
+      const body = $('#annBody').value.trim();
+      if (!title || !author || !body) return;
+      await state.addAnnouncement({ tag: $('#annTag').value, title, author, body });
+      renderAnn();
+      Fraga.mountShell('admin');
+      Fraga.toast('Comunicado publicado.');
+      e.target.reset();
+    });
+
+    /* ── Aniversariantes ──────────────────────────────────────────── */
+    const MONTH_ABBR = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    function daysInMonth2026(month) { return new Date(2026, month, 0).getDate(); }
+
+    function renderEmp() {
+      const list = $('#empAdminList');
+      list.innerHTML = '';
+      const items = state.getEmployees();
+      items.slice().sort((a, b) => a.month - b.month || a.day - b.day).forEach((emp) => {
+        const row = el('div', { class: 'row-card' },
+          el('div', { class: 'avatar', style: 'margin-right:2px;' }, initials(emp.name)),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, emp.name),
+            el('div', { class: 'row-meta' }, emp.role, el('span', { class: 'dot' }, '·'), emp.sector, el('span', { class: 'dot' }, '·'), emp.day + ' ' + MONTH_ABBR[emp.month - 1] + (emp.year ? '/' + emp.year : ''))
+          )
+        );
+        const del = el('button', { class: 'btn btn-ghost btn-sm', html: icon('trash') });
+        del.addEventListener('click', () => { state.deleteEmployee(emp.id); renderEmp(); Fraga.toast('Colaborador removido.'); });
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+
+    $('#empForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = $('#empName').value.trim();
+      const role = $('#empRole').value.trim();
+      const month = Number($('#empMonth').value);
+      const day = Number($('#empDay').value);
+      const year = $('#empYear').value ? Number($('#empYear').value) : null;
+      if (!name || !role || !day || day < 1 || day > daysInMonth2026(month)) {
+        Fraga.toast('Informe um dia válido para o mês selecionado.');
+        return;
+      }
+      state.addEmployee({ id: Fraga.genId('e'), name, role, sector: $('#empSector').value, month, day, year });
+      renderEmp();
+      Fraga.toast('Aniversariante adicionado.');
+      e.target.reset();
+    });
+
+    /* ── Onboarding ───────────────────────────────────────────────── */
+    function renderOnb() {
+      const list = $('#onbAdminList');
+      list.innerHTML = '';
+      const items = state.getOnboardingDefs();
+      items.forEach((s) => {
+        const row = el('div', { class: 'row-card' },
+          el('div', { class: 'row-icon tone-green', html: icon('check-circle') }),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, s.label),
+            el('div', { class: 'row-meta' }, s.sector === 'Todos' ? 'Todos os setores' : s.sector)
+          )
+        );
+        const del = el('button', { class: 'btn btn-ghost btn-sm', html: icon('trash') });
+        del.addEventListener('click', () => { state.deleteOnboardingStep(s.id); renderOnb(); Fraga.toast('Etapa removida.'); });
+        row.appendChild(del);
+        list.appendChild(row);
+      });
+    }
+
+    $('#onbForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const label = $('#onbLabel').value.trim();
+      if (!label) return;
+      state.addOnboardingStep({ id: Fraga.genId('s'), label, sector: $('#onbSector').value });
+      renderOnb();
+      Fraga.toast('Etapa adicionada à trilha de onboarding.');
+      e.target.reset();
+    });
+
+    /* ── Segurança: colaboradores reais, vindos da tabela profiles ──── */
+    $('#userSector').innerHTML = '';
+    SECTORS.forEach((s) => $('#userSector').appendChild(new Option(s, s)));
+
+    $('#genPassword').addEventListener('click', () => {
+      const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+      let pass = '';
+      for (let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+      $('#userPassword').value = pass;
+    });
+
+    /* Photo picker for the new-user form. */
+    const userPhoto = $('#userPhoto');
+    const userPhotoDrop = $('#userPhotoDrop');
+    const userPhotoChip = $('#userPhotoChip');
+
+    function showSelectedPhoto(file) {
+      if (!file) { userPhotoChip.hidden = true; userPhotoDrop.hidden = false; return; }
+      $('#userPhotoName').textContent = file.name;
+      $('#userPhotoPreview').src = URL.createObjectURL(file);
+      userPhotoChip.hidden = false;
+      userPhotoDrop.hidden = true;
+    }
+    function clearSelectedPhoto() { userPhoto.value = ''; showSelectedPhoto(null); }
+
+    userPhoto.addEventListener('change', () => showSelectedPhoto(userPhoto.files[0]));
+    $('#userPhotoRemove').addEventListener('click', clearSelectedPhoto);
+    ['dragover', 'dragenter'].forEach((evt) => userPhotoDrop.addEventListener(evt, (e) => { e.preventDefault(); userPhotoDrop.classList.add('is-dragover'); }));
+    ['dragleave', 'dragend'].forEach((evt) => userPhotoDrop.addEventListener(evt, () => userPhotoDrop.classList.remove('is-dragover')));
+    userPhotoDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      userPhotoDrop.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) { userPhoto.files = e.dataTransfer.files; showSelectedPhoto(userPhoto.files[0]); }
+    });
+
+    async function uploadAvatar(userId, file) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${userId}/avatar.${ext}`;
+      const { error: upErr } = await Fraga.supabase.storage.from('avatars').upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = Fraga.supabase.storage.from('avatars').getPublicUrl(path);
+      // Cache-bust: o caminho do arquivo nao muda entre uploads, entao sem isso
+      // o navegador continuaria mostrando a foto antiga em cache.
+      const avatarUrl = data.publicUrl + '?v=' + Date.now();
+      const { error: profErr } = await Fraga.supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('id', userId);
+      if (profErr) throw profErr;
+    }
+
+    let editingUserId = null;
+
+    async function callUserFn(payload) {
+      const { data: { session: sbSession } } = await Fraga.supabase.auth.getSession();
+      const res = await fetch('https://hfmlhhercgztgzfllaia.supabase.co/functions/v1/clever-api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + sbSession.access_token,
+          'apikey': 'sb_publishable_o7_7zH28RPdfTSkuRT9isA_bOEuNn1Z',
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Erro ao processar colaborador.');
+      return result;
+    }
+
+    function enterEditMode(u) {
+      editingUserId = u.id;
+      $('#userFormTitle span').textContent = 'Editar colaborador';
+      $('#userPasswordLabel').textContent = 'Nova senha (opcional)';
+      $('#userPasswordHint').textContent = 'Deixe em branco para manter a senha atual.';
+      $('#userName').value = u.name || '';
+      $('#userEmail').value = u.email || '';
+      $('#userPassword').value = '';
+      $('#userSector').value = u.sector || SECTORS[0];
+      $('#userRole').value = u.role || '';
+      $('#userAccessLevel').value = u.access_level || 'colaborador';
+      clearSelectedPhoto();
+      $('#userFormSubmit').textContent = 'Salvar alterações';
+      $('#userFormCancel').hidden = false;
+      $('#userForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function exitEditMode() {
+      editingUserId = null;
+      $('#userForm').reset();
+      $('#userFormTitle span').textContent = 'Cadastrar colaborador';
+      $('#userPasswordLabel').textContent = 'Senha provisória';
+      $('#userPasswordHint').textContent = 'Compartilhe essa senha com a pessoa fora daqui; ela pode trocar depois.';
+      $('#userSector').value = SECTORS[0];
+      clearSelectedPhoto();
+      $('#userFormSubmit').textContent = 'Cadastrar e criar acesso';
+      $('#userFormCancel').hidden = true;
+    }
+
+    $('#userFormCancel').addEventListener('click', exitEditMode);
+
+    async function deleteUser(u) {
+      if (u.id === session.id) { Fraga.toast('Você não pode excluir o seu próprio usuário.'); return; }
+      const ok = await Fraga.confirmDialog({
+        title: 'Excluir colaborador?',
+        message: `${u.name} perderá o acesso ao portal imediatamente. Essa ação não pode ser desfeita.`,
+        confirmText: 'Excluir',
+        cancelText: 'Cancelar',
+        danger: true,
+      });
+      if (!ok) return;
+      try {
+        await callUserFn({ action: 'delete', userId: u.id });
+        Fraga.toast(`${u.name} foi removido do portal.`);
+        if (editingUserId === u.id) exitEditMode();
+        renderSec();
+      } catch (err) {
+        Fraga.toast('Não foi possível excluir: ' + err.message);
+      }
+    }
+
+    async function renderSec() {
+      const body = $('#secList');
+      body.innerHTML = '<tr><td colspan="4" class="muted">Carregando...</td></tr>';
+
+      const { data: profiles, error } = await Fraga.supabase
+        .from('profiles').select('*').order('name');
+
+      if (error) {
+        body.innerHTML = '<tr><td colspan="4" class="muted">Não foi possível carregar os colaboradores.</td></tr>';
+        return;
+      }
+
+      body.innerHTML = '';
+      profiles.forEach((u) => {
+        const tr = document.createElement('tr');
+        const nameTd = document.createElement('td');
+        nameTd.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;">
+            ${Fraga.avatarHtml({ name: u.name, avatarUrl: u.avatar_url }, '')}
+            <div><strong>${u.name}</strong><br><span class="muted" style="font-size:12px;">${u.email}</span></div>
+          </div>`;
+        const sectorTd = document.createElement('td');
+        sectorTd.className = 'muted';
+        sectorTd.textContent = u.sector;
+        const levelTd = document.createElement('td');
+        const select = document.createElement('select');
+        select.style.cssText = 'height:36px;border-radius:8px;border:1px solid var(--line-strong);padding:0 10px;font-size:13.5px;background:var(--surface);color:var(--ink);';
+        const isSelf = u.id === session.id;
+        if (isSelf) select.disabled = true;
+        [['colaborador', 'Colaborador'], ['admin', 'Administrador']].forEach(([val, label]) => {
+          select.appendChild(new Option(label, val, false, u.access_level === val));
+        });
+        select.addEventListener('change', async () => {
+          select.disabled = true;
+          const { error: updErr } = await Fraga.supabase
+            .from('profiles').update({ access_level: select.value }).eq('id', u.id);
+          select.disabled = false;
+          if (updErr) { Fraga.toast('Não foi possível atualizar o acesso.'); return; }
+          Fraga.toast(`${u.name} agora é ${select.value === 'admin' ? 'administrador' : 'colaborador'}.`);
+        });
+        levelTd.appendChild(select);
+        if (isSelf) levelTd.appendChild(el('div', { class: 'hint', style: 'margin-top:4px;' }, 'você'));
+
+        const actionsTd = document.createElement('td');
+        const actionsWrap = document.createElement('div');
+        actionsWrap.style.cssText = 'display:flex;gap:8px;justify-content:flex-end;';
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'icon-btn icon-btn-sm';
+        editBtn.setAttribute('aria-label', 'Editar colaborador');
+        editBtn.title = 'Editar';
+        editBtn.innerHTML = icon('pencil');
+        editBtn.addEventListener('click', () => enterEditMode(u));
+        actionsWrap.appendChild(editBtn);
+        if (!isSelf) {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'icon-btn icon-btn-sm icon-btn-danger';
+          delBtn.setAttribute('aria-label', 'Excluir colaborador');
+          delBtn.title = 'Excluir';
+          delBtn.innerHTML = icon('trash');
+          delBtn.addEventListener('click', () => deleteUser(u));
+          actionsWrap.appendChild(delBtn);
+        }
+        actionsTd.appendChild(actionsWrap);
+
+        tr.appendChild(nameTd); tr.appendChild(sectorTd); tr.appendChild(levelTd); tr.appendChild(actionsTd);
+        body.appendChild(tr);
+      });
+    }
+
+    $('#userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = $('#userFormSubmit');
+      const errorEl = $('#userFormError');
+      errorEl.hidden = true;
+
+      const name = $('#userName').value.trim();
+      const email = $('#userEmail').value.trim();
+      const password = $('#userPassword').value;
+      const sector = $('#userSector').value;
+      const role = $('#userRole').value.trim();
+      const accessLevel = $('#userAccessLevel').value;
+
+      if (!name || !email || !role) return;
+      if (!editingUserId && !password) {
+        errorEl.textContent = 'Informe uma senha provisória.';
+        errorEl.hidden = false;
+        return;
+      }
+      if (password && password.length < 6) {
+        errorEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.';
+        errorEl.hidden = false;
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = editingUserId ? 'Salvando...' : 'Cadastrando...';
+
+      try {
+        const payload = editingUserId
+          ? { action: 'update', userId: editingUserId, name, email, password: password || undefined, sector, role, access_level: accessLevel }
+          : { action: 'create', name, email, password, sector, role, access_level: accessLevel };
+        const result = await callUserFn(payload);
+
+        const photoFile = userPhoto.files[0];
+        if (photoFile) {
+          try { await uploadAvatar(result.id, photoFile); }
+          catch (photoErr) {
+            console.error('Falha ao enviar avatar:', photoErr);
+            Fraga.toast('Dados salvos, mas a foto falhou: ' + (photoErr.message || photoErr));
+          }
+        }
+
+        Fraga.toast(editingUserId ? 'Colaborador atualizado com sucesso.' : 'Colaborador cadastrado com sucesso.');
+        const wasEditing = !!editingUserId;
+        exitEditMode();
+        if (!wasEditing) e.target.reset();
+        renderSec();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = editingUserId ? 'Salvar alterações' : 'Cadastrar e criar acesso';
+      }
+    });
+
+    renderDocs();
+    renderAnn();
+    renderEmp();
+    renderOnb();
+    renderSec();
+  }
+</script>
+</body>
+</html>

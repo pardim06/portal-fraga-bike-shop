@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comunicados | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="comunicados">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Comunicados</span>
+        <h1 class="page-title">Comunicados importantes</h1>
+        <p class="page-sub">Fique por dentro dos avisos e novidades da Fraga Bike Shop.</p>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap;" id="filterChips">
+        <button class="chip" type="button" data-tag="todos" aria-pressed="true">Todos</button>
+        <button class="chip" type="button" data-tag="urgente" aria-pressed="false">Urgente</button>
+        <button class="chip" type="button" data-tag="importante" aria-pressed="false">Importante</button>
+        <button class="chip" type="button" data-tag="geral" aria-pressed="false">Geral</button>
+      </div>
+
+      <div class="list-stack" id="annList"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <p>Nenhum comunicado nesta categoria.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('comunicados');
+  if (session) {
+    const { $, $$, el, icon, state, relativeDay } = Fraga;
+    const annList = $('#annList');
+    const emptyState = $('#emptyState');
+    let currentTag = 'todos';
+    let ANNOUNCEMENTS = [];
+    let readIds = [];
+    let likeCounts = {};
+    let likedIds = [];
+
+    function heartIcon(filled) {
+      return `<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="${filled ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`;
+    }
+
+    function buildCard(a) {
+      const unread = !readIds.includes(a.id);
+      const card = el('div', {
+        class: 'announce-card' + (a.tag === 'urgente' ? ' urgente' : '') + (unread ? ' unread' : ''),
+        id: 'ann-' + a.id,
+      });
+      const left = el('div', { style: 'flex:1;min-width:0;' },
+        el('div', { class: 'announce-meta' },
+          el('span', { class: 'badge badge-' + a.tag }, a.tag),
+          el('span', {}, a.author + ' · ' + relativeDay(a.date))
+        ),
+        el('div', { class: 'announce-title' }, a.title)
+      );
+      const body = el('div', { class: 'announce-body' }, a.body);
+      body.hidden = true;
+      left.appendChild(body);
+
+      const actions = el('div', { style: 'display:flex;flex-direction:column;gap:10px;align-items:flex-end;flex-shrink:0;' });
+
+      const isLiked = likedIds.includes(a.id);
+      const likeBtn = el('button', {
+        class: 'like-btn' + (isLiked ? ' is-liked' : ''),
+        html: heartIcon(isLiked) + `<span data-like-count>${likeCounts[a.id] || 0}</span>`,
+        'aria-pressed': String(isLiked),
+        'aria-label': 'Curtir comunicado',
+      });
+      likeBtn.addEventListener('click', async () => {
+        likeBtn.disabled = true;
+        const nowLiked = !likeBtn.classList.contains('is-liked');
+        await state.toggleLike(a.id, !nowLiked);
+        likeBtn.classList.toggle('is-liked', nowLiked);
+        likeBtn.setAttribute('aria-pressed', String(nowLiked));
+        likeBtn.innerHTML = heartIcon(nowLiked) + `<span data-like-count>${(likeCounts[a.id] || 0) + (nowLiked ? 1 : -1)}</span>`;
+        likeCounts[a.id] = (likeCounts[a.id] || 0) + (nowLiked ? 1 : -1);
+        likedIds = nowLiked ? [...likedIds, a.id] : likedIds.filter((id) => id !== a.id);
+        likeBtn.disabled = false;
+      });
+
+      const btn = el('button', { class: 'btn btn-ghost btn-sm' }, unread ? 'Ler comunicado' : 'Visualizar');
+      btn.addEventListener('click', async () => {
+        const wasHidden = body.hidden;
+        body.hidden = !wasHidden;
+        if (wasHidden && unread) {
+          await state.markAnnouncementRead(a.id);
+          readIds.push(a.id);
+          card.classList.remove('unread');
+          Fraga.toast('Comunicado marcado como lido.');
+          Fraga.mountShell('comunicados');
+        }
+        btn.textContent = body.hidden ? 'Visualizar' : 'Recolher';
+      });
+
+      actions.appendChild(likeBtn);
+      actions.appendChild(btn);
+      card.appendChild(left);
+      card.appendChild(actions);
+      return { card, body, btn };
+    }
+
+    function render() {
+      annList.innerHTML = '';
+      const list = ANNOUNCEMENTS
+        .filter((a) => currentTag === 'todos' || a.tag === currentTag)
+        .slice()
+        .sort((a, b) => (a.date < b.date ? 1 : -1));
+      emptyState.hidden = list.length > 0;
+      list.forEach((a) => annList.appendChild(buildCard(a).card));
+    }
+
+    $$('[data-tag]', $('#filterChips')).forEach((chip) => {
+      chip.addEventListener('click', () => {
+        currentTag = chip.dataset.tag;
+        $$('[data-tag]', $('#filterChips')).forEach((c) => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
+        render();
+        const deepId = Fraga.qs('id');
+        if (deepId) openDeepLink(deepId);
+      });
+    });
+
+    function openDeepLink(id) {
+      const a = ANNOUNCEMENTS.find((x) => x.id === id);
+      if (!a) return;
+      if (currentTag !== 'todos' && currentTag !== a.tag) return;
+      const cardEl = $('#ann-' + id);
+      if (!cardEl) return;
+      const body = cardEl.querySelector('.announce-body');
+      const btn = cardEl.querySelector('button');
+      if (body.hidden) {
+        body.hidden = false;
+        btn.textContent = 'Recolher';
+        if (!readIds.includes(id)) {
+          state.markAnnouncementRead(id);
+          readIds.push(id);
+          cardEl.classList.remove('unread');
+          Fraga.mountShell('comunicados');
+        }
+      }
+      cardEl.style.boxShadow = '0 0 0 3px var(--orange-line)';
+      cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => { cardEl.style.boxShadow = ''; }, 1600);
+    }
+
+    (async () => {
+      [ANNOUNCEMENTS, readIds, likeCounts, likedIds] = await Promise.all([
+        state.getAnnouncements(),
+        state.getReadAnnouncementIds(),
+        state.getLikeCounts(),
+        state.getMyLikedIds(),
+      ]);
+      render();
+      const deepId = Fraga.qs('id');
+      if (deepId) openDeepLink(deepId);
+    })();
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="onboarding">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Onboarding</span>
+        <h1 class="page-title">Bem-vindo(a) à Fraga Bike Shop</h1>
+        <p class="page-sub" id="progressSub">Seu onboarding está 0% concluído</p>
+      </div>
+
+      <div class="progress-track" style="margin-bottom:36px;">
+        <div class="progress-fill" id="progressFill" style="width:0%;"></div>
+      </div>
+
+      <div class="onb-topic-grid" id="topicGrid"></div>
+
+      <div class="card card-pad" style="margin-top:8px;">
+        <h3 style="font-size:16px;margin-bottom:18px;">Sua trilha de integração</h3>
+        <div class="onb-checklist" id="checklist"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('onboarding');
+  if (session) {
+    const { $, el, icon, ONBOARDING_TOPICS, state } = Fraga;
+
+    const topicGrid = $('#topicGrid');
+    ONBOARDING_TOPICS.forEach((t) => {
+      const card = el('div', { class: 'onb-topic', role: 'button', tabindex: '0' },
+        el('div', { class: 'quick-icon tone-' + t.tone, html: icon(t.icon) }),
+        el('h4', {}, t.label)
+      );
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => Fraga.toast('Abrindo conteúdo: ' + t.label));
+      topicGrid.appendChild(card);
+    });
+
+    function labelFor(id) { return (state.onboardingStepsFor(session).find((s) => s.id === id) || {}).label || ''; }
+
+    function renderProgress() {
+      const pct = state.onboardingProgress(session);
+      $('#progressFill').style.width = pct + '%';
+      $('#progressSub').textContent = 'Seu onboarding está ' + pct + '% concluído' + (pct === 100 ? ' 🎉' : '');
+    }
+
+    function renderChecklist() {
+      const list = $('#checklist');
+      list.innerHTML = '';
+      const steps = state.onboardingSteps(session);
+      if (!steps.length) {
+        list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhuma etapa de onboarding cadastrada ainda.')));
+        return;
+      }
+      steps.forEach((step) => {
+        const id = 'step-' + step.id;
+        const label = el('label', { class: 'onb-check', for: id },
+          (() => { const i = document.createElement('input'); i.type = 'checkbox'; i.id = id; i.checked = step.done; return i; })(),
+          el('span', { class: 'box', html: icon('check') }),
+          el('span', { class: 'label' }, labelFor(step.id))
+        );
+        label.querySelector('input').addEventListener('change', () => {
+          state.toggleOnboardingStep(step.id, session);
+          renderProgress();
+          const nowDone = state.onboardingSteps(session).find((s) => s.id === step.id).done;
+          if (nowDone) Fraga.toast('Etapa concluída: ' + labelFor(step.id));
+        });
+        list.appendChild(label);
+      });
+    }
+
+    renderProgress();
+    renderChecklist();
+  }
+</script>
+</body>
+</html>

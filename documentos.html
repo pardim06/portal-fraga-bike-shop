@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Documentos | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="documentos">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Central de documentos</span>
+        <h1 class="page-title">Documentos</h1>
+        <p class="page-sub">Busque e organize POPs, manuais e políticas por setor.</p>
+      </div>
+
+      <label class="search-input" style="max-width:460px;margin-bottom:20px;">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="search" id="docSearch" placeholder="Buscar POP, manual ou documento..." />
+      </label>
+
+      <div style="display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap;" id="catChips">
+        <button class="chip" type="button" data-cat="todos" aria-pressed="true">Todos</button>
+        <button class="chip" type="button" data-cat="meu-setor" aria-pressed="false">Meu setor</button>
+        <button class="chip" type="button" data-cat="POPs" aria-pressed="false">POPs</button>
+        <button class="chip" type="button" data-cat="Manuais" aria-pressed="false">Manuais</button>
+        <button class="chip" type="button" data-cat="Políticas" aria-pressed="false">Políticas</button>
+      </div>
+
+      <div class="list-stack" id="docList"></div>
+      <div class="empty-state" id="docEmpty" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Nenhum documento encontrado para essa busca.</p>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('documentos');
+  if (session) {
+    const { $, $$, el, icon, state, formatDate } = Fraga;
+    const DOCS = state.docsVisibleTo(session);
+    const list = $('#docList');
+    const empty = $('#docEmpty');
+    const search = $('#docSearch');
+    let currentCat = 'todos';
+
+    const q = Fraga.qs('q');
+    if (q) search.value = q;
+
+    function norm(s) { return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+
+    function matches(doc) {
+      const term = norm(search.value.trim());
+      const inSearch = !term || norm(doc.title).includes(term) || norm(doc.sector).includes(term) || norm(doc.category).includes(term);
+      let inCat = true;
+      if (currentCat === 'meu-setor') inCat = doc.sector === session.sector;
+      else if (currentCat !== 'todos') inCat = doc.category === currentCat;
+      return inSearch && inCat;
+    }
+
+    function buildRow(doc) {
+      const isRead = state.isDocRead(doc.id);
+      const row = el('div', { class: 'row-card' },
+        el('div', { class: 'row-icon tone-' + doc.tone, html: icon('file') }),
+        el('div', { class: 'row-body' },
+          el('div', { class: 'row-title' }, doc.title),
+          el('div', { class: 'row-meta' },
+            doc.sector, el('span', { class: 'dot' }, '·'),
+            doc.version, el('span', { class: 'dot' }, '·'),
+            'atualizado em ' + formatDate(doc.updatedAt),
+            isRead ? el('span', { class: 'badge badge-outline', style: 'margin-left:10px;' }, '✓ Lido') : ''
+          )
+        )
+      );
+      const actions = el('div', { class: 'row-actions' });
+      const view = el('a', { class: 'btn btn-ghost btn-sm', href: 'documento.html?id=' + doc.id }, 'Visualizar');
+      const dl = doc.fileData
+        ? el('a', { class: 'btn btn-primary btn-sm', href: doc.fileData, download: doc.fileName || (doc.title + '.pdf') }, 'Baixar')
+        : el('button', { class: 'btn btn-primary btn-sm' }, 'Baixar PDF');
+      if (!doc.fileData) dl.addEventListener('click', () => Fraga.toast('Simulando download de "' + doc.title + '.pdf"'));
+      actions.appendChild(view);
+      actions.appendChild(dl);
+      row.appendChild(actions);
+      return row;
+    }
+
+    function render() {
+      list.innerHTML = '';
+      const results = DOCS.filter(matches);
+      empty.hidden = results.length > 0;
+      results.forEach((d) => list.appendChild(buildRow(d)));
+    }
+
+    $$('[data-cat]', $('#catChips')).forEach((chip) => {
+      chip.addEventListener('click', () => {
+        currentCat = chip.dataset.cat;
+        $$('[data-cat]', $('#catChips')).forEach((c) => c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'));
+        render();
+      });
+    });
+    search.addEventListener('input', render);
+
+    render();
+  }
+</script>
+</body>
+</html>

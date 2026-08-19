@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Início | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="dashboard">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow" id="dateLabel">Início</span>
+        <h1 class="page-title" id="greeting">Olá!</h1>
+        <p class="page-sub">Confira as principais novidades e informações para você.</p>
+      </div>
+
+      <div class="quick-grid" style="margin-bottom:44px;">
+        <a class="quick-card" href="documentos.html">
+          <div class="quick-icon tone-orange"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <h3>Documentos</h3>
+          <p>Acesso aos POPs e manuais</p>
+        </a>
+        <a class="quick-card" href="comunicados.html">
+          <div class="quick-icon tone-blue"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+          <h3>Comunicados</h3>
+          <p>Últimas notícias da empresa</p>
+        </a>
+        <a class="quick-card" href="onboarding.html">
+          <div class="quick-icon tone-green"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+          <h3>Onboarding</h3>
+          <p>Conheça a Fraga Bike Shop</p>
+        </a>
+        <a class="quick-card" href="aniversariantes.html">
+          <div class="quick-icon tone-orange"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>
+          <h3>Aniversariantes</h3>
+          <p>Quem comemora este mês</p>
+        </a>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <h2 style="font-size:18px;margin-bottom:16px;">Comunicados recentes</h2>
+          <div class="list-stack" id="recentAnnouncements"></div>
+          <div style="margin-top:18px;"><a class="btn btn-ghost btn-sm" href="comunicados.html">Ver todos os comunicados</a></div>
+        </div>
+        <div>
+          <div class="card card-pad" style="margin-bottom:20px;">
+            <h3 style="font-size:15px;margin-bottom:14px;">Seu onboarding</h3>
+            <div class="progress-track"><div class="progress-fill" id="dashOnbFill" style="width:0%;"></div></div>
+            <p style="margin-top:10px;font-size:13px;color:var(--ink-soft);"><span id="dashOnbPct">0</span>% concluído</p>
+            <a class="btn btn-primary btn-sm btn-block" style="margin-top:14px;" href="onboarding.html">Continuar onboarding</a>
+          </div>
+          <div class="card card-pad">
+            <h3 style="font-size:15px;margin-bottom:14px;">Aniversariantes do mês</h3>
+            <div class="list-stack" id="dashBirthdays"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('dashboard');
+  if (session) {
+    const { $, el, icon, state, relativeDay } = Fraga;
+    const EMPLOYEES = state.getEmployees();
+    const firstName = session.name.split(' ')[0];
+    const hour = new Date().getHours();
+    const greetWord = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+    $('#greeting').textContent = `${greetWord}, ${firstName}!`;
+    $('#dateLabel').textContent = new Date('2026-08-17T09:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+
+    // Onboarding progress
+    const pct = state.onboardingProgress(session);
+    $('#dashOnbFill').style.width = pct + '%';
+    $('#dashOnbPct').textContent = pct;
+
+    // Recent announcements (top 3)
+    const recentWrap = $('#recentAnnouncements');
+    Promise.all([state.getAnnouncements(), state.getReadAnnouncementIds()]).then(([ANNOUNCEMENTS, readIds]) => {
+    ANNOUNCEMENTS.slice(0, 3).forEach((a) => {
+      const unread = !readIds.includes(a.id);
+      const tone = a.tag === 'urgente' ? 'red' : a.tag === 'importante' ? 'orange' : 'blue';
+      const row = el('a', { class: 'row-card', href: 'comunicados.html?id=' + a.id, style: 'text-decoration:none;' },
+        el('div', { class: 'row-icon tone-' + tone, html: icon('bell') }),
+        el('div', { class: 'row-body' },
+          el('div', { class: 'row-title' }, (unread ? '● ' : '') + a.title),
+          el('div', { class: 'row-meta' }, a.author + ' · ' + relativeDay(a.date))
+        ),
+        el('span', { class: 'badge badge-' + a.tag }, a.tag)
+      );
+      recentWrap.appendChild(row);
+    });
+    });
+
+    // Birthdays this month, soonest first
+    const bWrap = $('#dashBirthdays');
+    EMPLOYEES.filter((e) => e.month === 8).sort((a, b) => a.day - b.day).slice(0, 3).forEach((e) => {
+      bWrap.appendChild(el('div', { class: 'birthday-item', style: 'padding:12px 14px;' },
+        el('div', { class: 'avatar', html: Fraga.initials(e.name) }),
+        el('div', {},
+          el('div', { class: 'name', style: 'font-size:13.5px;' }, e.name),
+          el('div', { class: 'role' }, e.sector)
+        ),
+        el('div', { class: 'date' }, e.day + ' ago')
+      ));
+    });
+  }
+</script>
+</body>
+</html>

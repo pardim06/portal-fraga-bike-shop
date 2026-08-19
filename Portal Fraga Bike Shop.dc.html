@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:oklch(0.97 0.012 55); --surface:oklch(0.995 0.004 55); --ink:oklch(0.20 0.02 40); --ink-soft:oklch(0.50 0.02 45);
+      --line:oklch(0.87 0.012 55); --black:oklch(0.16 0.01 40); --black-2:oklch(0.22 0.015 40);
+      --orange:oklch(0.68 0.19 42); --orange-dark:oklch(0.56 0.19 42); --orange-soft:oklch(0.94 0.045 42);
+      --blue:oklch(0.62 0.13 235); --blue-soft:oklch(0.94 0.03 235);
+      --green:oklch(0.68 0.13 150); --green-soft:oklch(0.94 0.035 150);
+      --red:oklch(0.60 0.18 25); --red-soft:oklch(0.94 0.05 25);
+      --type-title:64px; --type-subtitle:36px; --type-h3:30px; --type-body:26px; --type-small:24px;
+      --pad-x:90px; --pad-top:64px; --pad-bottom:56px; --gap-lg:36px; --gap-md:22px;
+      font-family:'Manrope',sans-serif;
+    }
+    body{margin:0;background:var(--bg);}
+  </style>
+</helmet>
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+
+<section data-label="Capa" data-speaker-notes="Abertura: apresentar o objetivo do projeto e o tom do produto." style="height:100%;background:var(--black);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);">
+  <div style="position:absolute;right:-180px;top:-180px;width:640px;height:640px;border-radius:50%;background:var(--orange);opacity:0.14;"></div>
+  <div style="position:absolute;right:60px;bottom:-140px;width:420px;height:420px;border-radius:50%;border:44px solid var(--orange);opacity:0.16;"></div>
+  <img src="assets/fraga-logo.png" alt="Fraga Bike Shop" style="height:96px;width:auto;object-fit:contain;object-position:left;margin-bottom:56px;"/>
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:20px;">Portal Corporativo &middot; Protótipo Visual</div>
+  <h1 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-title);color:white;margin:0 0 24px 0;max-width:1300px;line-height:1.08;">Portal Corporativo Fraga Bike Shop</h1>
+  <p style="font-family:'Manrope';font-weight:500;font-size:var(--type-subtitle);color:oklch(0.85 0.01 55);margin:0;max-width:1100px;">Informação, conhecimento e comunicação em um só lugar.</p>
+  <div style="display:flex;gap:32px;margin-top:64px;">
+    <div style="font-family:'Manrope';font-size:var(--type-small);color:oklch(0.7 0.01 55);">Apresentação à Diretoria</div>
+    <div style="width:1px;background:oklch(0.4 0.01 55);"></div>
+    <div style="font-family:'Manrope';font-size:var(--type-small);color:oklch(0.7 0.01 55);">Agosto de 2026</div>
+  </div>
+</section>
+
+<section data-label="Visão do Produto" data-speaker-notes="Explicar o posicionamento: produto SaaS corporativo, não um site institucional." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:16px;">Visão do produto</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 24px 0;">Um produto interno, não uma página institucional</h2>
+  <p style="font-family:'Manrope';font-size:var(--type-body);color:var(--ink-soft);max-width:1200px;line-height:1.5;margin:0 0 var(--gap-lg) 0;">Uma plataforma inspirada em Notion, Linear e Monday: espaçamento generoso, hierarquia clara e navegação simples — mantendo a energia e a identidade da Fraga Bike Shop.</p>
+  <div style="display:flex;gap:24px;margin-top:auto;">
+    <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:36px 28px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:var(--orange-soft);margin-bottom:20px;"></div>
+      <div style="font-family:'Space Grotesk';font-weight:600;font-size:28px;color:var(--ink);margin-bottom:10px;">Documentos</div>
+      <div style="font-family:'Manrope';font-size:var(--type-small);color:var(--ink-soft);">Central de POPs e manuais</div>
+    </div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:36px 28px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:var(--blue-soft);margin-bottom:20px;"></div>
+      <div style="font-family:'Space Grotesk';font-weight:600;font-size:28px;color:var(--ink);margin-bottom:10px;">Comunicados</div>
+      <div style="font-family:'Manrope';font-size:var(--type-small);color:var(--ink-soft);">Notícias e avisos internos</div>
+    </div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:36px 28px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:var(--green-soft);margin-bottom:20px;"></div>
+      <div style="font-family:'Space Grotesk';font-weight:600;font-size:28px;color:var(--ink);margin-bottom:10px;">Onboarding</div>
+      <div style="font-family:'Manrope';font-size:var(--type-small);color:var(--ink-soft);">Jornada de integração</div>
+    </div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:36px 28px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:var(--orange-soft);margin-bottom:20px;"></div>
+      <div style="font-family:'Space Grotesk';font-weight:600;font-size:28px;color:var(--ink);margin-bottom:10px;">Equipe</div>
+      <div style="font-family:'Manrope';font-size:var(--type-small);color:var(--ink-soft);">Perfis e aniversariantes</div>
+    </div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:36px 28px;">
+      <div style="width:52px;height:52px;border-radius:14px;background:var(--blue-soft);margin-bottom:20px;"></div>
+      <div style="font-family:'Space Grotesk';font-weight:600;font-size:28px;color:var(--ink);margin-bottom:10px;">Gestão</div>
+      <div style="font-family:'Manrope';font-size:var(--type-small);color:var(--ink-soft);">Indicadores e administração</div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Tela Inicial" data-speaker-notes="Landing institucional do portal, ponto de entrada antes do login." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 01</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Tela inicial do portal</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;flex-direction:column;">
+    <div style="height:56px;flex-shrink:0;display:flex;align-items:center;gap:28px;padding:0 28px;border-bottom:1px solid var(--line);">
+      <div style="display:flex;gap:8px;"><div style="width:12px;height:12px;border-radius:50%;background:var(--line);"></div><div style="width:12px;height:12px;border-radius:50%;background:var(--line);"></div><div style="width:12px;height:12px;border-radius:50%;background:var(--line);"></div></div>
+      <div style="background:var(--bg);border-radius:999px;padding:8px 22px;font-size:22px;color:var(--ink-soft);">portal.fragabikeshop.com.br</div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 48px;border-bottom:1px solid var(--line);">
+      <img src="assets/fraga-logo.png" style="height:44px;"/>
+      <div style="display:flex;gap:40px;font-family:'Manrope';font-weight:600;font-size:22px;color:var(--ink-soft);">
+        <div>Sobre</div><div>Recursos</div><div>Suporte</div>
+      </div>
+      <div style="background:var(--orange);color:white;font-family:'Manrope';font-weight:700;font-size:22px;padding:14px 28px;border-radius:12px;">Acessar Portal</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;gap:56px;padding:0 48px;">
+      <div style="flex:1;">
+        <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:44px;color:var(--ink);margin:0 0 20px 0;line-height:1.1;">Informação, conhecimento e comunicação em um só lugar.</h3>
+        <p style="font-family:'Manrope';font-size:24px;color:var(--ink-soft);max-width:520px;margin:0 0 28px 0;">Acesso rápido a procedimentos, comunicados, documentos e informações da Fraga Bike Shop.</p>
+        <div style="display:flex;gap:18px;">
+          <div style="background:var(--orange);color:white;font-weight:700;font-size:22px;padding:16px 30px;border-radius:12px;">Acessar Portal</div>
+          <div style="background:transparent;border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:22px;padding:16px 30px;border-radius:12px;">Conheça o Portal</div>
+        </div>
+      </div>
+      <div style="flex:1;height:340px;border-radius:20px;background:repeating-linear-gradient(135deg, var(--orange-soft), var(--orange-soft) 18px, var(--surface) 18px, var(--surface) 36px);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:22px;color:var(--ink-soft);">imagem: equipe / oficina Fraga</div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Login" data-speaker-notes="Tela de acesso, dividida em identidade visual e formulário." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 02</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Login</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="flex:1;background:var(--black);display:flex;flex-direction:column;justify-content:center;padding:64px;position:relative;overflow:hidden;">
+      <div style="position:absolute;right:-120px;bottom:-120px;width:340px;height:340px;border-radius:50%;background:var(--orange);opacity:0.18;"></div>
+      <img src="assets/fraga-logo.png" style="height:56px;margin-bottom:36px;"/>
+      <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:white;margin:0 0 16px 0;">Bem-vindo ao Portal Fraga</h3>
+      <p style="font-family:'Manrope';font-size:24px;color:oklch(0.8 0.01 55);max-width:420px;margin:0;">Conecte-se para acessar informações, documentos e recursos internos.</p>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:64px;">
+      <div style="width:100%;max-width:440px;">
+        <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);margin:0 0 28px 0;">Acessar sua conta</h3>
+        <div style="font-family:'Manrope';font-weight:600;font-size:22px;color:var(--ink-soft);margin-bottom:8px;">E-mail</div>
+        <div style="border:1px solid var(--line);border-radius:12px;padding:16px 20px;font-size:22px;color:var(--ink-soft);margin-bottom:22px;">colaborador@fragabikeshop.com.br</div>
+        <div style="font-family:'Manrope';font-weight:600;font-size:22px;color:var(--ink-soft);margin-bottom:8px;">Senha</div>
+        <div style="border:1px solid var(--line);border-radius:12px;padding:16px 20px;font-size:22px;color:var(--ink-soft);margin-bottom:18px;">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div>
+        <div style="display:flex;justify-content:space-between;font-family:'Manrope';font-size:20px;color:var(--ink-soft);margin-bottom:28px;">
+          <div style="display:flex;align-items:center;gap:8px;"><div style="width:18px;height:18px;border-radius:5px;border:1px solid var(--line);"></div>Lembrar acesso</div>
+          <div style="color:var(--orange);font-weight:700;">Esqueci minha senha</div>
+        </div>
+        <div style="background:var(--orange);color:white;font-weight:700;font-size:24px;padding:18px;border-radius:12px;text-align:center;">Entrar no Portal</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Dashboard Colaborador" data-speaker-notes="Tela mais usada no dia a dia: acesso rápido às áreas principais." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 03</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Dashboard do colaborador</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);display:flex;flex-direction:column;padding:32px 22px;gap:6px;">
+      <img src="assets/fraga-logo.png" style="height:36px;margin-bottom:26px;"/>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:white;opacity:0.9;"></div>Início</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--black-2);"></div>Documentos</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--black-2);"></div>Comunicados</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--black-2);"></div>Aniversariantes</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--black-2);"></div>Onboarding</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--black-2);"></div>Institucional</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--black-2);"></div>Meu Perfil</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;padding:40px 44px;overflow:hidden;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;">
+        <div style="background:var(--bg);border-radius:999px;padding:14px 26px;width:380px;font-size:22px;color:var(--ink-soft);">O que você está procurando?</div>
+        <div style="display:flex;align-items:center;gap:22px;">
+          <div style="width:16px;height:16px;border-radius:50%;background:var(--orange);"></div>
+          <div style="width:48px;height:48px;border-radius:50%;background:var(--orange-soft);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--orange-dark);font-size:22px;">CD</div>
+          <div style="font-family:'Manrope';font-weight:700;font-size:22px;color:var(--ink);">Camila Duarte</div>
+        </div>
+      </div>
+      <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:36px;color:var(--ink);margin:0 0 8px 0;">Bom dia, Camila!</h3>
+      <p style="font-family:'Manrope';font-size:24px;color:var(--ink-soft);margin:0 0 32px 0;">Confira as principais novidades e informações para você.</p>
+      <div style="display:flex;gap:22px;">
+        <div style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:28px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--orange-soft);margin-bottom:18px;"></div><div style="font-weight:700;font-size:24px;color:var(--ink);margin-bottom:8px;">Documentos</div><div style="font-size:20px;color:var(--ink-soft);">Acesso aos POPs e manuais</div></div>
+        <div style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:28px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--blue-soft);margin-bottom:18px;"></div><div style="font-weight:700;font-size:24px;color:var(--ink);margin-bottom:8px;">Comunicados</div><div style="font-size:20px;color:var(--ink-soft);">Últimas notícias da empresa</div></div>
+        <div style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:28px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--green-soft);margin-bottom:18px;"></div><div style="font-weight:700;font-size:24px;color:var(--ink);margin-bottom:8px;">Onboarding</div><div style="font-size:20px;color:var(--ink-soft);">Conheça a Fraga Bike Shop</div></div>
+        <div style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:18px;padding:28px;"><div style="width:44px;height:44px;border-radius:12px;background:var(--orange-soft);margin-bottom:18px;"></div><div style="font-weight:700;font-size:24px;color:var(--ink);margin-bottom:8px;">Institucional</div><div style="font-size:20px;color:var(--ink-soft);">História, valores e documentos</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Comunicados" data-speaker-notes="Mural de avisos, com destaque visual para comunicados urgentes." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 04</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Comunicados</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);padding:32px 22px;"><img src="assets/fraga-logo.png" style="height:36px;margin-bottom:26px;"/><div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:white;opacity:0.9;"></div>Comunicados</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;padding:40px 44px;">
+      <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);margin:0 0 12px 0;">Comunicados importantes</h3>
+      <div style="display:flex;gap:14px;margin-bottom:28px;">
+        <div style="background:var(--orange);color:white;font-weight:700;font-size:20px;padding:10px 20px;border-radius:999px;">Todos</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:20px;padding:10px 20px;border-radius:999px;">Importante</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:20px;padding:10px 20px;border-radius:999px;">Urgente</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--red);background:var(--red-soft);border-radius:16px;padding:24px 28px;">
+          <div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;"><div style="background:var(--red);color:white;font-weight:700;font-size:18px;padding:4px 12px;border-radius:6px;">URGENTE</div><div style="font-size:20px;color:var(--ink-soft);">Publicado hoje &middot; RH</div></div>
+            <div style="font-family:'Space Grotesk';font-weight:600;font-size:26px;color:var(--ink);">Atualização do procedimento de atendimento</div>
+          </div>
+          <div style="background:var(--red);color:white;font-weight:700;font-size:20px;padding:12px 24px;border-radius:10px;white-space:nowrap;">Visualizar</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:16px;padding:24px 28px;">
+          <div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;"><div style="background:var(--orange-soft);color:var(--orange-dark);font-weight:700;font-size:18px;padding:4px 12px;border-radius:6px;">IMPORTANTE</div><div style="font-size:20px;color:var(--ink-soft);">Publicado ontem &middot; Comercial</div></div>
+            <div style="font-family:'Space Grotesk';font-weight:600;font-size:26px;color:var(--ink);">Novo horário de funcionamento da loja</div>
+          </div>
+          <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:20px;padding:12px 24px;border-radius:10px;white-space:nowrap;">Ler comunicado</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:16px;padding:24px 28px;">
+          <div>
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px;"><div style="background:var(--blue-soft);color:var(--blue);font-weight:700;font-size:18px;padding:4px 12px;border-radius:6px;">GERAL</div><div style="font-size:20px;color:var(--ink-soft);">12/08/2026 &middot; Direção</div></div>
+            <div style="font-family:'Space Grotesk';font-weight:600;font-size:26px;color:var(--ink);">Resultados do trimestre e agradecimento à equipe</div>
+          </div>
+          <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:20px;padding:12px 24px;border-radius:10px;white-space:nowrap;">Ler comunicado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Central de Documentos" data-speaker-notes="Busca e organização de POPs, manuais e políticas por setor." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 05</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Central de documentos</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);padding:32px 22px;"><img src="assets/fraga-logo.png" style="height:36px;margin-bottom:26px;"/><div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:white;opacity:0.9;"></div>Documentos</div></div>
+    <div style="flex:1;display:flex;flex-direction:column;padding:40px 44px;">
+      <div style="background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:16px 26px;font-size:22px;color:var(--ink-soft);max-width:520px;margin-bottom:22px;">Buscar POP, manual ou documento...</div>
+      <div style="display:flex;gap:12px;margin-bottom:26px;">
+        <div style="background:var(--orange);color:white;font-weight:700;font-size:19px;padding:9px 18px;border-radius:999px;">Todos</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Meu setor</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">POPs</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Manuais</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Políticas</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:center;gap:22px;border:1px solid var(--line);border-radius:14px;padding:18px 24px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--orange-soft);flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:23px;color:var(--ink);">POP &mdash; Atendimento ao Cliente</div><div style="font-size:19px;color:var(--ink-soft);">Comercial &middot; v2.1 &middot; atualizado em 15/08/2026</div></div>
+          <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:19px;padding:10px 18px;border-radius:9px;">Visualizar</div>
+          <div style="background:var(--orange);color:white;font-weight:700;font-size:19px;padding:10px 18px;border-radius:9px;">Baixar PDF</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:22px;border:1px solid var(--line);border-radius:14px;padding:18px 24px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--blue-soft);flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:23px;color:var(--ink);">Manual &mdash; Operação E-commerce</div><div style="font-size:19px;color:var(--ink-soft);">E-commerce &middot; v1.4 &middot; atualizado em 02/08/2026</div></div>
+          <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:19px;padding:10px 18px;border-radius:9px;">Visualizar</div>
+          <div style="background:var(--orange);color:white;font-weight:700;font-size:19px;padding:10px 18px;border-radius:9px;">Baixar PDF</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:22px;border:1px solid var(--line);border-radius:14px;padding:18px 24px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--green-soft);flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:23px;color:var(--ink);">Política &mdash; Uso de EPIs na Oficina</div><div style="font-size:19px;color:var(--ink-soft);">Administrativo &middot; v3.0 &middot; atualizado em 20/07/2026</div></div>
+          <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:19px;padding:10px 18px;border-radius:9px;">Visualizar</div>
+          <div style="background:var(--orange);color:white;font-weight:700;font-size:19px;padding:10px 18px;border-radius:9px;">Baixar PDF</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Visualização de Documento" data-speaker-notes="Leitura do documento com registro automático de leitura." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 06</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Visualização de documento</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:340px;flex-shrink:0;border-right:1px solid var(--line);padding:36px 30px;display:flex;flex-direction:column;gap:20px;">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:26px;color:var(--ink);">POP &mdash; Atendimento ao Cliente</div>
+      <div><div style="font-size:19px;color:var(--ink-soft);">Categoria</div><div style="font-weight:700;font-size:22px;color:var(--ink);">Procedimento</div></div>
+      <div><div style="font-size:19px;color:var(--ink-soft);">Setor</div><div style="font-weight:700;font-size:22px;color:var(--ink);">Comercial</div></div>
+      <div><div style="font-size:19px;color:var(--ink-soft);">Versão</div><div style="font-weight:700;font-size:22px;color:var(--ink);">2.1</div></div>
+      <div><div style="font-size:19px;color:var(--ink-soft);">Atualizado em</div><div style="font-weight:700;font-size:22px;color:var(--ink);">15/08/2026</div></div>
+      <div><div style="font-size:19px;color:var(--ink-soft);">Responsável</div><div style="font-weight:700;font-size:22px;color:var(--ink);">Renata Alves</div></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:flex-end;gap:14px;padding:24px 32px;border-bottom:1px solid var(--line);">
+        <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:20px;padding:12px 22px;border-radius:10px;">Compartilhar</div>
+        <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:20px;padding:12px 22px;border-radius:10px;">Baixar</div>
+        <div style="background:var(--green);color:white;font-weight:700;font-size:20px;padding:12px 22px;border-radius:10px;">Marcar como lido</div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px;">
+        <div style="width:70%;height:100%;background:repeating-linear-gradient(135deg, var(--bg), var(--bg) 18px, var(--surface) 18px, var(--surface) 36px);border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:22px;color:var(--ink-soft);">preview do documento (PDF)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Aniversariantes" data-speaker-notes="Página com foco humano, mostrando cultura da empresa." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 07</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Aniversariantes do mês</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);padding:32px 22px;"><img src="assets/fraga-logo.png" style="height:36px;margin-bottom:26px;"/><div style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:22px;"><div style="width:22px;height:22px;border-radius:6px;background:white;opacity:0.9;"></div>Aniversariantes</div></div>
+    <div style="flex:1;display:flex;padding:40px 44px;gap:36px;">
+      <div style="flex:1.4;display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;align-items:center;gap:20px;border:1px solid var(--line);border-radius:16px;padding:20px 24px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--orange-soft);flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:24px;color:var(--ink);">Bruno Ferreira</div><div style="font-size:19px;color:var(--ink-soft);">Vendedor &middot; Loja Fraga Geral</div></div>
+          <div style="font-weight:700;font-size:22px;color:var(--orange-dark);">18 ago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;border:1px solid var(--line);border-radius:16px;padding:20px 24px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--blue-soft);flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:24px;color:var(--ink);">Larissa Nunes</div><div style="font-size:19px;color:var(--ink-soft);">Analista &middot; Administrativo</div></div>
+          <div style="font-weight:700;font-size:22px;color:var(--orange-dark);">22 ago</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;border:1px solid var(--line);border-radius:16px;padding:20px 24px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--green-soft);flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700;font-size:24px;color:var(--ink);">Diego Souza</div><div style="font-size:19px;color:var(--ink-soft);">Analista &middot; E-commerce</div></div>
+          <div style="font-weight:700;font-size:22px;color:var(--orange-dark);">27 ago</div>
+        </div>
+      </div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:18px;padding:26px;">
+        <div style="font-weight:700;font-size:24px;color:var(--ink);margin-bottom:16px;">Agosto</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;">
+          <!-- calendar grid placeholder cells -->
+          <div style="height:34px;"></div><div style="height:34px;"></div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">1</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">2</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">3</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">4</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">5</div>
+          <div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">6</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">7</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">8</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">9</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">10</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">11</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">12</div>
+          <div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">13</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">14</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">15</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">16</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">17</div><div style="height:34px;border-radius:50%;background:var(--orange);color:white;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;">18</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">19</div>
+          <div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">20</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">21</div><div style="height:34px;border-radius:50%;background:var(--orange);color:white;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;">22</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">23</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">24</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">25</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">26</div>
+          <div style="height:34px;border-radius:50%;background:var(--orange);color:white;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;">27</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">28</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">29</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">30</div><div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);">31</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Onboarding" data-speaker-notes="Jornada de integração para novos colaboradores." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 08</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Onboarding</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;flex-direction:column;padding:44px 52px;">
+    <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:36px;color:var(--ink);margin:0 0 8px 0;">Bem-vindo à Fraga Bike Shop</h3>
+    <p style="font-family:'Manrope';font-size:23px;color:var(--ink-soft);margin:0 0 26px 0;">Seu onboarding está 65% concluído</p>
+    <div style="height:16px;border-radius:999px;background:var(--bg);overflow:hidden;margin-bottom:32px;"><div style="width:65%;height:100%;background:var(--orange);border-radius:999px;"></div></div>
+    <div style="display:flex;gap:22px;margin-bottom:32px;">
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;"><div style="width:40px;height:40px;border-radius:10px;background:var(--orange-soft);margin-bottom:14px;"></div><div style="font-weight:700;font-size:22px;color:var(--ink);">Nossa história</div></div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;"><div style="width:40px;height:40px;border-radius:10px;background:var(--blue-soft);margin-bottom:14px;"></div><div style="font-weight:700;font-size:22px;color:var(--ink);">Missão &amp; visão</div></div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;"><div style="width:40px;height:40px;border-radius:10px;background:var(--green-soft);margin-bottom:14px;"></div><div style="font-weight:700;font-size:22px;color:var(--ink);">Nossos valores</div></div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;"><div style="width:40px;height:40px;border-radius:10px;background:var(--orange-soft);margin-bottom:14px;"></div><div style="font-weight:700;font-size:22px;color:var(--ink);">Código de conduta</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:18px;">&#10003;</div><div style="font-size:23px;color:var(--ink);">Conheça nossa história</div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-size:18px;">&#10003;</div><div style="font-size:23px;color:var(--ink);">Conheça nossos valores</div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:28px;height:28px;border-radius:50%;border:2px solid var(--line);"></div><div style="font-size:23px;color:var(--ink-soft);">Leia o código de conduta</div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:28px;height:28px;border-radius:50%;border:2px solid var(--line);"></div><div style="font-size:23px;color:var(--ink-soft);">Conheça os procedimentos</div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:28px;height:28px;border-radius:50%;border:2px solid var(--line);"></div><div style="font-size:23px;color:var(--ink-soft);">Finalize seu treinamento</div></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Perfil do Colaborador" data-speaker-notes="Perfil pessoal com histórico de atividade." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 09</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Meu perfil</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;flex-direction:column;padding:44px 52px;">
+    <div style="display:flex;gap:32px;align-items:center;margin-bottom:36px;">
+      <div style="width:120px;height:120px;border-radius:50%;background:var(--orange-soft);flex-shrink:0;"></div>
+      <div>
+        <div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);">Camila Duarte</div>
+        <div style="font-size:22px;color:var(--ink-soft);margin-top:6px;">Analista de E-commerce &middot; Setor E-commerce</div>
+        <div style="font-size:20px;color:var(--ink-soft);margin-top:6px;">camila.duarte@fragabikeshop.com.br &middot; Admissão em 03/02/2023</div>
+      </div>
+    </div>
+    <div style="font-weight:700;font-size:26px;color:var(--ink);margin-bottom:18px;">Minha atividade</div>
+    <div style="display:flex;gap:22px;">
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;"><div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange-dark);">14</div><div style="font-size:20px;color:var(--ink-soft);margin-top:6px;">Documentos visualizados</div></div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;"><div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange-dark);">22</div><div style="font-size:20px;color:var(--ink-soft);margin-top:6px;">Comunicados lidos</div></div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;"><div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange-dark);">100%</div><div style="font-size:20px;color:var(--ink-soft);margin-top:6px;">Onboarding concluído</div></div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;"><div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange-dark);">hoje</div><div style="font-size:20px;color:var(--ink-soft);margin-top:6px;">Último acesso</div></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Dashboard Administrativo" data-speaker-notes="Visão executiva para gestores, com indicadores gerais." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 10 &middot; Administração</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Dashboard administrativo</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);padding:32px 22px;display:flex;flex-direction:column;">
+      <img src="assets/fraga-logo.png" style="height:36px;margin-bottom:16px;"/>
+      <div style="background:var(--orange);color:white;font-weight:700;font-size:17px;padding:6px 14px;border-radius:999px;width:fit-content;margin-bottom:22px;">MODO ADMINISTRADOR</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:21px;margin-bottom:5px;"><div style="width:20px;height:20px;border-radius:6px;background:white;opacity:0.9;"></div>Dashboard</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:21px;margin-bottom:5px;"><div style="width:20px;height:20px;border-radius:6px;background:var(--black-2);"></div>Documentos</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:21px;margin-bottom:5px;"><div style="width:20px;height:20px;border-radius:6px;background:var(--black-2);"></div>Usuários</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:21px;margin-bottom:5px;"><div style="width:20px;height:20px;border-radius:6px;background:var(--black-2);"></div>Relatórios</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;color:oklch(0.82 0.01 40);font-weight:600;font-size:21px;"><div style="width:20px;height:20px;border-radius:6px;background:var(--black-2);"></div>Configurações</div>
+    </div>
+    <div style="flex:1;padding:36px 40px;overflow:hidden;display:flex;flex-direction:column;">
+      <h3 style="font-family:'Space Grotesk';font-weight:700;font-size:32px;color:var(--ink);margin:0 0 22px 0;">Visão geral</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px;">
+        <div style="border:1px solid var(--line);border-radius:14px;padding:20px 22px;"><div style="font-size:18px;color:var(--ink-soft);">Colaboradores ativos</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);">30</div></div>
+        <div style="border:1px solid var(--line);border-radius:14px;padding:20px 22px;"><div style="font-size:18px;color:var(--ink-soft);">Documentos publicados</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);">48</div></div>
+        <div style="border:1px solid var(--line);border-radius:14px;padding:20px 22px;"><div style="font-size:18px;color:var(--ink-soft);">Comunicados publicados</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);">14</div></div>
+        <div style="border:1px solid var(--line);border-radius:14px;padding:20px 22px;"><div style="font-size:18px;color:var(--ink-soft);">Documentos atualizados</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);">6</div></div>
+        <div style="border:1px solid var(--line);border-radius:14px;padding:20px 22px;"><div style="font-size:18px;color:var(--ink-soft);">Taxa de leitura</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--green);">91%</div></div>
+        <div style="border:1px solid var(--line);border-radius:14px;padding:20px 22px;"><div style="font-size:18px;color:var(--ink-soft);">Acessos este mês</div><div style="font-family:'Space Grotesk';font-weight:700;font-size:34px;color:var(--ink);">412</div></div>
+      </div>
+      <div style="flex:1;display:flex;gap:16px;">
+        <div style="flex:1.3;border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;">
+          <div style="font-weight:700;font-size:20px;color:var(--ink);margin-bottom:14px;">Acessos ao portal</div>
+          <div style="flex:1;display:flex;align-items:flex-end;gap:10px;">
+            <div style="flex:1;height:40%;background:var(--orange-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:55%;background:var(--orange-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:70%;background:var(--orange-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:50%;background:var(--orange-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:85%;background:var(--orange);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:65%;background:var(--orange-soft);border-radius:6px 6px 0 0;"></div>
+          </div>
+        </div>
+        <div style="flex:1;border:1px solid var(--line);border-radius:14px;padding:20px 22px;overflow:hidden;">
+          <div style="font-weight:700;font-size:20px;color:var(--ink);margin-bottom:14px;">Atividade recente</div>
+          <div style="font-size:18px;color:var(--ink-soft);line-height:2.1;">Bruno acessou POP Atendimento<br/>Larissa baixou Manual E-commerce<br/>Administrador publicou comunicado</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Gestão de Usuários" data-speaker-notes="CMS de usuários, documentos e comunicados em uma área." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 11 &middot; Administração</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Gestão de usuários</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);padding:32px 22px;display:flex;flex-direction:column;">
+      <img src="assets/fraga-logo.png" style="height:36px;margin-bottom:16px;"/>
+      <div style="background:var(--orange);color:white;font-weight:700;font-size:17px;padding:6px 14px;border-radius:999px;width:fit-content;margin-bottom:22px;">MODO ADMINISTRADOR</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:21px;"><div style="width:20px;height:20px;border-radius:6px;background:white;opacity:0.9;"></div>Usuários</div>
+    </div>
+    <div style="flex:1;padding:36px 40px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+        <div style="display:flex;gap:10px;">
+          <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Setor</div>
+          <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Perfil</div>
+          <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Status</div>
+        </div>
+        <div style="background:var(--orange);color:white;font-weight:700;font-size:20px;padding:12px 22px;border-radius:10px;">+ Novo colaborador</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2.2fr 1.4fr 1.4fr 1fr 1fr;gap:10px;padding:0 16px 12px 16px;border-bottom:1px solid var(--line);font-size:18px;font-weight:700;color:var(--ink-soft);">
+        <div>Colaborador</div><div>Cargo / Setor</div><div>Perfil</div><div>Status</div><div>Último acesso</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2.2fr 1.4fr 1.4fr 1fr 1fr;gap:10px;padding:16px;align-items:center;border-bottom:1px solid var(--line);">
+        <div style="display:flex;align-items:center;gap:14px;"><div style="width:38px;height:38px;border-radius:50%;background:var(--orange-soft);"></div><div style="font-weight:700;font-size:20px;color:var(--ink);">Bruno Ferreira</div></div>
+        <div style="font-size:19px;color:var(--ink-soft);">Vendedor &middot; Loja</div><div style="font-size:19px;color:var(--ink-soft);">Colaborador</div>
+        <div><div style="background:var(--green-soft);color:var(--green);font-weight:700;font-size:17px;padding:4px 12px;border-radius:999px;width:fit-content;">Ativo</div></div>
+        <div style="font-size:18px;color:var(--ink-soft);">Hoje</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2.2fr 1.4fr 1.4fr 1fr 1fr;gap:10px;padding:16px;align-items:center;border-bottom:1px solid var(--line);">
+        <div style="display:flex;align-items:center;gap:14px;"><div style="width:38px;height:38px;border-radius:50%;background:var(--blue-soft);"></div><div style="font-weight:700;font-size:20px;color:var(--ink);">Larissa Nunes</div></div>
+        <div style="font-size:19px;color:var(--ink-soft);">Analista &middot; Administrativo</div><div style="font-size:19px;color:var(--ink-soft);">Gestora</div>
+        <div><div style="background:var(--green-soft);color:var(--green);font-weight:700;font-size:17px;padding:4px 12px;border-radius:999px;width:fit-content;">Ativo</div></div>
+        <div style="font-size:18px;color:var(--ink-soft);">Ontem</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2.2fr 1.4fr 1.4fr 1fr 1fr;gap:10px;padding:16px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:14px;"><div style="width:38px;height:38px;border-radius:50%;background:var(--green-soft);"></div><div style="font-weight:700;font-size:20px;color:var(--ink);">Diego Souza</div></div>
+        <div style="font-size:19px;color:var(--ink-soft);">Analista &middot; E-commerce</div><div style="font-size:19px;color:var(--ink-soft);">Colaborador</div>
+        <div><div style="background:oklch(0.9 0.01 40);color:var(--ink-soft);font-weight:700;font-size:17px;padding:4px 12px;border-radius:999px;width:fit-content;">Inativo</div></div>
+        <div style="font-size:18px;color:var(--ink-soft);">12/07</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Gestão de Documentos" data-speaker-notes="CMS de documentos: administrador cadastra e publica novos arquivos." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 12 &middot; Administração</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Gestão de documentos</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;position:relative;">
+    <div style="width:300px;flex-shrink:0;background:var(--black);padding:32px 22px;display:flex;flex-direction:column;">
+      <img src="assets/fraga-logo.png" style="height:36px;margin-bottom:16px;"/>
+      <div style="background:var(--orange);color:white;font-weight:700;font-size:18px;padding:6px 14px;border-radius:999px;width:fit-content;margin-bottom:22px;">MODO ADMINISTRADOR</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:12px;background:var(--orange);color:white;font-weight:700;font-size:24px;"><div style="width:20px;height:20px;border-radius:6px;background:white;opacity:0.9;"></div>Documentos</div>
+    </div>
+    <div style="flex:1;padding:36px 40px;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;">
+        <div style="font-weight:700;font-size:26px;color:var(--ink);">86 documentos publicados</div>
+        <div style="background:var(--orange);color:white;font-weight:700;font-size:22px;padding:12px 24px;border-radius:10px;">+ Novo documento</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;gap:10px;padding:0 16px 12px 16px;border-bottom:1px solid var(--line);font-size:20px;font-weight:700;color:var(--ink-soft);">
+        <div>Documento</div><div>Categoria</div><div>Setor</div><div>Versão</div><div>Status</div><div>Ações</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;gap:10px;padding:16px;align-items:center;border-bottom:1px solid var(--line);">
+        <div style="font-weight:700;font-size:22px;color:var(--ink);">POP Atendimento ao Cliente</div><div style="font-size:20px;color:var(--ink-soft);">POP</div><div style="font-size:20px;color:var(--ink-soft);">Comercial</div><div style="font-size:20px;color:var(--ink-soft);">2.1</div>
+        <div><div style="background:var(--green-soft);color:var(--green);font-weight:700;font-size:18px;padding:4px 12px;border-radius:999px;width:fit-content;">Publicado</div></div>
+        <div style="font-size:20px;color:var(--orange-dark);font-weight:700;">Editar</div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr;gap:10px;padding:16px;align-items:center;">
+        <div style="font-weight:700;font-size:22px;color:var(--ink);">Manual Operação E-commerce</div><div style="font-size:20px;color:var(--ink-soft);">Manual</div><div style="font-size:20px;color:var(--ink-soft);">E-commerce</div><div style="font-size:20px;color:var(--ink-soft);">1.4</div>
+        <div><div style="background:var(--green-soft);color:var(--green);font-weight:700;font-size:18px;padding:4px 12px;border-radius:999px;width:fit-content;">Publicado</div></div>
+        <div style="font-size:20px;color:var(--orange-dark);font-weight:700;">Editar</div>
+      </div>
+    </div>
+    <div style="position:absolute;top:0;right:0;bottom:0;width:520px;background:var(--surface);border-left:1px solid var(--line);box-shadow:-24px 0 60px -30px oklch(0.2 0.02 40 / 0.4);padding:40px 36px;display:flex;flex-direction:column;gap:16px;">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:28px;color:var(--ink);margin-bottom:6px;">Novo documento</div>
+      <div><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Nome</div><div style="border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:20px;color:var(--ink-soft);">POP &mdash; Recebimento de mercadorias</div></div>
+      <div><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Descrição</div><div style="border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:20px;color:var(--ink-soft);height:44px;">Procedimento de conferência e entrada de estoque</div></div>
+      <div style="display:flex;gap:12px;">
+        <div style="flex:1;"><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Categoria</div><div style="border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:20px;color:var(--ink-soft);">POP</div></div>
+        <div style="flex:1;"><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Setor</div><div style="border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:20px;color:var(--ink-soft);">Estoque</div></div>
+      </div>
+      <div><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Arquivo</div><div style="border:2px dashed var(--line);border-radius:10px;padding:22px 16px;font-size:19px;color:var(--ink-soft);text-align:center;font-family:monospace;">arraste um PDF ou clique para enviar</div></div>
+      <div style="display:flex;gap:12px;">
+        <div style="flex:1;"><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Versão</div><div style="border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:20px;color:var(--ink-soft);">1.0</div></div>
+        <div style="flex:1;"><div style="font-size:19px;color:var(--ink-soft);margin-bottom:6px;">Responsável</div><div style="border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:20px;color:var(--ink-soft);">Renata Alves</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:4px;"><div style="width:22px;height:22px;border-radius:6px;background:var(--orange);"></div><div style="font-size:20px;color:var(--ink);">Publicar imediatamente</div></div>
+      <div style="display:flex;gap:12px;margin-top:auto;">
+        <div style="flex:1;border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:21px;padding:14px;border-radius:10px;text-align:center;">Cancelar</div>
+        <div style="flex:1;background:var(--orange);color:white;font-weight:700;font-size:21px;padding:14px;border-radius:10px;text-align:center;">Salvar documento</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Relatórios" data-speaker-notes="Painel de indicadores com filtros de período e exportação." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 12 &middot; Administração</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Relatórios</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;flex-direction:column;padding:40px 44px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;">
+      <div style="display:flex;gap:10px;">
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">Hoje</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">7 dias</div>
+        <div style="background:var(--orange);color:white;font-weight:700;font-size:19px;padding:9px 18px;border-radius:999px;">30 dias</div>
+        <div style="border:1px solid var(--line);color:var(--ink-soft);font-weight:600;font-size:19px;padding:9px 18px;border-radius:999px;">90 dias</div>
+      </div>
+      <div style="border:1px solid var(--line);color:var(--ink);font-weight:700;font-size:20px;padding:12px 22px;border-radius:10px;">Exportar relatório</div>
+    </div>
+    <div style="display:flex;gap:20px;flex:1;">
+      <div style="flex:1.3;border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;">
+        <div style="font-weight:700;font-size:22px;color:var(--ink);margin-bottom:16px;">Usuários ativos ao longo do tempo</div>
+        <div style="flex:1;display:flex;align-items:flex-end;gap:8px;">
+          <div style="flex:1;height:30%;background:var(--blue-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:45%;background:var(--blue-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:60%;background:var(--blue-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:52%;background:var(--blue-soft);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:78%;background:var(--blue);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:90%;background:var(--blue);border-radius:6px 6px 0 0;"></div><div style="flex:1;height:82%;background:var(--blue);border-radius:6px 6px 0 0;"></div>
+        </div>
+      </div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:24px;">
+        <div style="font-weight:700;font-size:22px;color:var(--ink);margin-bottom:16px;">Documentos mais acessados</div>
+        <div style="display:flex;flex-direction:column;gap:12px;font-size:19px;color:var(--ink);">
+          <div style="display:flex;justify-content:space-between;"><div>POP Atendimento</div><div style="color:var(--ink-soft);">312</div></div>
+          <div style="display:flex;justify-content:space-between;"><div>Manual E-commerce</div><div style="color:var(--ink-soft);">204</div></div>
+          <div style="display:flex;justify-content:space-between;"><div>Política de EPIs</div><div style="color:var(--ink-soft);">158</div></div>
+        </div>
+      </div>
+      <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:24px;">
+        <div style="font-weight:700;font-size:22px;color:var(--ink);margin-bottom:16px;">Engajamento por setor</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div><div style="display:flex;justify-content:space-between;font-size:18px;color:var(--ink-soft);margin-bottom:6px;"><div>Comercial</div><div>94%</div></div><div style="height:10px;background:var(--bg);border-radius:999px;"><div style="width:94%;height:100%;background:var(--orange);border-radius:999px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:18px;color:var(--ink-soft);margin-bottom:6px;"><div>E-commerce</div><div>88%</div></div><div style="height:10px;background:var(--bg);border-radius:999px;"><div style="width:88%;height:100%;background:var(--orange);border-radius:999px;"></div></div></div>
+          <div><div style="display:flex;justify-content:space-between;font-size:18px;color:var(--ink-soft);margin-bottom:6px;"><div>Administrativo</div><div>79%</div></div><div style="height:10px;background:var(--bg);border-radius:999px;"><div style="width:79%;height:100%;background:var(--orange);border-radius:999px;"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Configurações" data-speaker-notes="Área de configurações administrativas do portal." style="height:100%;background:var(--bg);display:flex;flex-direction:column;padding:var(--pad-top) var(--pad-x) var(--pad-bottom) var(--pad-x);">
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.12em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;">Tela 13 &middot; Administração</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:var(--type-subtitle);color:var(--ink);margin:0 0 var(--gap-lg) 0;">Configurações</h2>
+  <div style="flex:1;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 30px 80px -35px oklch(0.2 0.02 40 / 0.35);overflow:hidden;display:flex;flex-direction:column;padding:40px 60px;gap:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:16px;padding:24px 28px;"><div><div style="font-weight:700;font-size:24px;color:var(--ink);">Perfil da empresa</div><div style="font-size:20px;color:var(--ink-soft);">Nome, logo e dados institucionais</div></div><div style="width:56px;height:30px;border-radius:999px;background:var(--orange);position:relative;"><div style="position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:white;"></div></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:16px;padding:24px 28px;"><div><div style="font-weight:700;font-size:24px;color:var(--ink);">Setores e cargos</div><div style="font-size:20px;color:var(--ink-soft);">Comercial, E-commerce, Administrativo, Oficina</div></div><div style="width:56px;height:30px;border-radius:999px;background:var(--orange);position:relative;"><div style="position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:white;"></div></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:16px;padding:24px 28px;"><div><div style="font-weight:700;font-size:24px;color:var(--ink);">Permissões e perfis de acesso</div><div style="font-size:20px;color:var(--ink-soft);">Administrador, Gestor, Colaborador</div></div><div style="width:56px;height:30px;border-radius:999px;background:var(--orange);position:relative;"><div style="position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;background:white;"></div></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);border-radius:16px;padding:24px 28px;"><div><div style="font-weight:700;font-size:24px;color:var(--ink);">Notificações</div><div style="font-size:20px;color:var(--ink-soft);">Alertas de comunicados e documentos</div></div><div style="width:56px;height:30px;border-radius:999px;background:var(--bg);border:1px solid var(--line);position:relative;"><div style="position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:var(--ink-soft);"></div></div></div>
+  </div>
+</section>
+
+<section data-label="Próximos Passos" data-speaker-notes="Encerramento com próximos passos para validação e desenvolvimento." style="height:100%;background:var(--black);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:0 var(--pad-x);">
+  <div style="position:absolute;left:-160px;bottom:-160px;width:560px;height:560px;border-radius:50%;background:var(--orange);opacity:0.14;"></div>
+  <div style="font-family:'Manrope';font-weight:700;font-size:var(--type-small);letter-spacing:0.14em;text-transform:uppercase;color:var(--orange);margin-bottom:20px;">Próximos passos</div>
+  <h2 style="font-family:'Space Grotesk';font-weight:700;font-size:56px;color:white;margin:0 0 56px 0;max-width:1200px;">Da validação ao portal em produção</h2>
+  <div style="display:flex;gap:32px;">
+    <div style="flex:1;border:1px solid oklch(0.4 0.01 55);border-radius:18px;padding:32px;">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange);margin-bottom:14px;">01</div>
+      <div style="font-weight:700;font-size:26px;color:white;margin-bottom:10px;">Validação com a diretoria</div>
+      <div style="font-size:22px;color:oklch(0.75 0.01 55);">Ajustes de conteúdo e prioridades</div>
+    </div>
+    <div style="flex:1;border:1px solid oklch(0.4 0.01 55);border-radius:18px;padding:32px;">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange);margin-bottom:14px;">02</div>
+      <div style="font-weight:700;font-size:26px;color:white;margin-bottom:10px;">Conteúdo real</div>
+      <div style="font-size:22px;color:oklch(0.75 0.01 55);">POPs, comunicados e dados da equipe</div>
+    </div>
+    <div style="flex:1;border:1px solid oklch(0.4 0.01 55);border-radius:18px;padding:32px;">
+      <div style="font-family:'Space Grotesk';font-weight:700;font-size:40px;color:var(--orange);margin-bottom:14px;">03</div>
+      <div style="font-weight:700;font-size:26px;color:white;margin-bottom:10px;">Desenvolvimento e piloto</div>
+      <div style="font-size:22px;color:oklch(0.75 0.01 55);">Implementação e testes com a equipe</div>
+    </div>
+  </div>
+</section>
+
+</x-import>
+</x-dc>
+</body>
+</html>

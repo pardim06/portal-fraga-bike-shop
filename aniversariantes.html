@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aniversariantes | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=7">
+</head>
+<body data-page="aniversariantes">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Equipe</span>
+        <h1 class="page-title" id="pageTitle">Aniversariantes de agosto</h1>
+        <p class="page-sub" id="pageSub">Celebre com o time e confira quem faz aniversário em agosto.</p>
+      </div>
+
+      <div class="two-col">
+        <div class="list-stack" id="bdayList"></div>
+        <div class="card cal">
+          <div class="cal-head">
+            <div class="cal-month-switch">
+              <button class="icon-btn" type="button" id="prevMonth" aria-label="Mês anterior">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <h3 id="calMonthLabel">Agosto</h3>
+              <button class="icon-btn" type="button" id="nextMonth" aria-label="Próximo mês">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <span class="badge badge-outline" id="todayLabel" hidden>hoje: 17 ago</span>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=6"></script>
+<script>
+  const session = Fraga.init('aniversariantes');
+  if (session) {
+    const { $, el, state } = Fraga;
+    const EMPLOYEES = state.getEmployees();
+    const TODAY_MONTH = 8;
+    const TODAY_DAY = 17;
+    const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const MONTH_NAMES_LOWER = MONTH_NAMES.map((m) => m.toLowerCase());
+    const DOW = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+    let currentMonth = TODAY_MONTH;
+
+    function renderList() {
+      const list = $('#bdayList');
+      list.innerHTML = '';
+      const monthEmployees = EMPLOYEES.filter((e) => e.month === currentMonth).slice().sort((a, b) => a.day - b.day);
+      if (!monthEmployees.length) {
+        list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Ninguém da equipe faz aniversário em ' + MONTH_NAMES_LOWER[currentMonth - 1] + '.')));
+        return;
+      }
+      monthEmployees.forEach((e) => {
+        const isToday = currentMonth === TODAY_MONTH && e.day === TODAY_DAY;
+        list.appendChild(el('div', { class: 'birthday-item' + (isToday ? ' today' : '') },
+          el('div', { class: 'avatar' }, Fraga.initials(e.name)),
+          el('div', {},
+            el('div', { class: 'name' }, e.name),
+            el('div', { class: 'role' }, e.role + ' · ' + e.sector)
+          ),
+          el('div', { class: 'date' }, e.day + ' ' + MONTH_NAMES_LOWER[currentMonth - 1].slice(0, 3) + (e.year ? '/' + e.year : '') + (isToday ? ' 🎉' : ''))
+        ));
+      });
+    }
+
+    function renderCalendar() {
+      const grid = $('#calGrid');
+      grid.innerHTML = '';
+      DOW.forEach((d) => grid.appendChild(el('div', { class: 'dow' }, d)));
+
+      const firstWeekday = new Date(2026, currentMonth - 1, 1).getDay();
+      const daysInMonth = new Date(2026, currentMonth, 0).getDate();
+      const bdaySet = new Set(EMPLOYEES.filter((e) => e.month === currentMonth).map((e) => e.day));
+
+      for (let i = 0; i < firstWeekday; i++) grid.appendChild(el('div', { class: 'cal-day empty' }, ''));
+      for (let day = 1; day <= daysInMonth; day++) {
+        const classes = ['cal-day'];
+        if (bdaySet.has(day)) classes.push('has-bday');
+        if (currentMonth === TODAY_MONTH && day === TODAY_DAY) classes.push('is-today');
+        grid.appendChild(el('div', { class: classes.join(' '), title: bdaySet.has(day) ? 'Aniversário' : '' }, String(day)));
+      }
+    }
+
+    function render() {
+      $('#calMonthLabel').textContent = MONTH_NAMES[currentMonth - 1];
+      $('#pageTitle').textContent = 'Aniversariantes de ' + MONTH_NAMES_LOWER[currentMonth - 1];
+      $('#pageSub').textContent = 'Celebre com o time e confira quem faz aniversário em ' + MONTH_NAMES_LOWER[currentMonth - 1] + '.';
+      $('#todayLabel').hidden = currentMonth !== TODAY_MONTH;
+      renderList();
+      renderCalendar();
+    }
+
+    $('#prevMonth').addEventListener('click', () => {
+      currentMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+      render();
+    });
+    $('#nextMonth').addEventListener('click', () => {
+      currentMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+      render();
+    });
+
+    render();
+  }
+</script>
+</body>
+</html>
