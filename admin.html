@@ -298,7 +298,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/app.js?v=7"></script>
 <script>
   const session = Fraga.requireAdmin();
   if (session) {
@@ -370,10 +370,11 @@
 
     let editingDocId = null;
 
-    function renderDocs() {
+    async function renderDocs() {
       const list = $('#docsAdminList');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      const docs = await state.getDocs();
       list.innerHTML = '';
-      const docs = state.getDocs();
       if (!docs.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhum documento publicado ainda.'))); return; }
       docs.forEach((d) => {
         const row = el('div', { class: 'row-card' },
@@ -397,10 +398,14 @@
             confirmText: 'Excluir', cancelText: 'Cancelar', danger: true,
           });
           if (!ok) return;
-          state.deleteDoc(d.id);
-          if (editingDocId === d.id) exitDocEditMode();
-          renderDocs();
-          Fraga.toast('Documento removido.');
+          try {
+            await state.deleteDoc(d.id);
+            if (editingDocId === d.id) exitDocEditMode();
+            renderDocs();
+            Fraga.toast('Documento removido.');
+          } catch (err) {
+            Fraga.toast('Não foi possível excluir: ' + (err.message || err));
+          }
         });
         actions.appendChild(editBtn);
         actions.appendChild(del);
@@ -437,47 +442,53 @@
 
     $('#docFormCancel').addEventListener('click', exitDocEditMode);
 
-    $('#docForm').addEventListener('submit', (e) => {
+    $('#docForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = $('#docTitle').value.trim();
       if (!title) return;
+      const file = docFile.files[0];
+      if (file && file.size > 3 * 1024 * 1024) { Fraga.toast('Arquivo muito grande (máx. 3 MB).'); return; }
+
       const category = $('#docCategory').value;
       const tone = category === 'POPs' ? 'orange' : category === 'Manuais' ? 'blue' : 'green';
-      const finish = (fileData, fileName, hasNewFile) => {
-        if (editingDocId) {
-          const patch = {
+      const submitBtn = $('#docFormSubmit');
+      const wasEditing = !!editingDocId;
+      submitBtn.disabled = true;
+      submitBtn.textContent = wasEditing ? 'Salvando...' : 'Publicando...';
+
+      try {
+        let docId = editingDocId;
+        if (wasEditing) {
+          await state.updateDoc(docId, {
             title, category, sector: $('#docSector').value,
             version: $('#docVersion').value.trim() || 'v1.0',
-            updatedAt: new Date().toISOString().slice(0, 10),
             tone, restricted: $('#docRestricted').checked,
-          };
-          if (hasNewFile) { patch.fileData = fileData; patch.fileName = fileName; }
-          state.updateDoc(editingDocId, patch);
-          Fraga.toast('Documento atualizado.');
-          exitDocEditMode();
-        } else {
-          state.addDoc({
-            id: Fraga.genId('d'), title, category, sector: $('#docSector').value,
-            version: $('#docVersion').value.trim() || 'v1.0',
-            updatedAt: new Date().toISOString().slice(0, 10),
-            owner: session.name, tone, restricted: $('#docRestricted').checked,
-            fileData: fileData || null, fileName: fileName || null,
           });
-          Fraga.toast('Documento publicado.');
-          e.target.reset();
-          $('#docVersion').value = 'v1.0';
-          clearSelectedFile();
+        } else {
+          docId = await state.addDoc({
+            title, category, sector: $('#docSector').value,
+            version: $('#docVersion').value.trim() || 'v1.0',
+            owner: session.name, tone, restricted: $('#docRestricted').checked,
+          });
         }
+
+        if (file) {
+          const path = `${docId}/${file.name}`;
+          const { error: upErr } = await Fraga.supabase.storage.from('documents').upload(path, file, { upsert: true });
+          if (upErr) throw upErr;
+          const { data } = Fraga.supabase.storage.from('documents').getPublicUrl(path);
+          await state.updateDoc(docId, { fileData: data.publicUrl + '?v=' + Date.now(), fileName: file.name });
+        }
+
+        Fraga.toast(wasEditing ? 'Documento atualizado.' : 'Documento publicado.');
+        exitDocEditMode();
         renderDocs();
-      };
-      const file = docFile.files[0];
-      if (file) {
-        if (file.size > 3 * 1024 * 1024) { Fraga.toast('Arquivo muito grande para este ambiente de demonstração (máx. 3 MB).'); return; }
-        const reader = new FileReader();
-        reader.onload = () => finish(reader.result, file.name, true);
-        reader.readAsDataURL(file);
-      } else {
-        finish(null, null, false);
+      } catch (err) {
+        console.error(err);
+        Fraga.toast('Erro ao salvar documento: ' + (err.message || err));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = editingDocId ? 'Salvar alterações' : 'Publicar documento';
       }
     });
 

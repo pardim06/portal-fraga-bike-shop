@@ -77,17 +77,6 @@
   }
 
   /* ── mock data ────────────────────────────────────────────────────── */
-  const DOCS = [
-    { id: 'd1', title: 'POP: Atendimento ao Cliente', category: 'POPs', sector: 'Comercial', version: 'v2.1', updatedAt: '2026-08-15', owner: 'Renata Alves', tone: 'orange' },
-    { id: 'd2', title: 'Manual: Operação E-commerce', category: 'Manuais', sector: 'E-commerce', version: 'v1.4', updatedAt: '2026-08-02', owner: 'Diego Souza', tone: 'blue' },
-    { id: 'd3', title: 'Política: Uso de EPIs na Oficina', category: 'Políticas', sector: 'Administrativo', version: 'v3.0', updatedAt: '2026-07-20', owner: 'Renata Alves', tone: 'green' },
-    { id: 'd4', title: 'POP: Abertura e Fechamento de Loja', category: 'POPs', sector: 'Comercial', version: 'v1.2', updatedAt: '2026-07-28', owner: 'Bruno Ferreira', tone: 'orange' },
-    { id: 'd5', title: 'Manual: Onboarding de Novos Colaboradores', category: 'Manuais', sector: 'RH', version: 'v2.0', updatedAt: '2026-08-10', owner: 'Larissa Nunes', tone: 'blue' },
-    { id: 'd6', title: 'Política: Código de Conduta', category: 'Políticas', sector: 'RH', version: 'v1.5', updatedAt: '2026-06-30', owner: 'Larissa Nunes', tone: 'green' },
-    { id: 'd7', title: 'POP: Manutenção Preventiva de Bicicletas', category: 'POPs', sector: 'Oficina', version: 'v3.2', updatedAt: '2026-08-05', owner: 'Diego Souza', tone: 'orange' },
-    { id: 'd8', title: 'Manual: Gestão de Estoque', category: 'Manuais', sector: 'Administrativo', version: 'v1.1', updatedAt: '2026-05-18', owner: 'Renata Alves', tone: 'blue' },
-  ];
-
   const ANNOUNCEMENTS = [
     { id: 'a1', tag: 'urgente', title: 'Atualização do procedimento de atendimento', author: 'RH', date: '2026-08-17', body: 'A partir de hoje, todo atendimento presencial deve seguir o novo roteiro de boas-vindas descrito no POP de Atendimento ao Cliente (v2.1). Times de loja devem revisar o documento ainda esta semana.' },
     { id: 'a2', tag: 'importante', title: 'Novo horário de funcionamento da loja', author: 'Comercial', date: '2026-08-16', body: 'A partir da próxima segunda-feira, a loja física passa a funcionar das 9h às 19h, de segunda a sábado. Ajustem as escalas com seus times.' },
@@ -203,24 +192,64 @@
   function genId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
   const state = {
-    readDocs() { return readList('fraga_read_docs'); },
-    markDocRead(id) {
-      const list = this.readDocs();
-      if (!list.includes(id)) { list.push(id); writeList('fraga_read_docs', list); }
+    /* Documents: live in Supabase now (shared across the whole company). */
+    async getDocs() {
+      const { data, error } = await sb.from('documents').select('*').order('updated_at', { ascending: false });
+      if (error) { console.error(error); return []; }
+      return data.map((d) => ({
+        id: d.id, title: d.title, category: d.category, sector: d.sector, version: d.version,
+        tone: d.tone, restricted: d.restricted, owner: d.owner,
+        fileData: d.file_url, fileName: d.file_name,
+        updatedAt: (d.updated_at || d.created_at).slice(0, 10),
+      }));
     },
-    isDocRead(id) { return this.readDocs().includes(id); },
-
-    /* Documents: admin-managed, seeded from DOCS. */
-    getDocs() { return readOrSeed('fraga_docs', DOCS); },
-    addDoc(doc) { const list = this.getDocs(); list.unshift(doc); writeList('fraga_docs', list); return list; },
-    deleteDoc(id) { const list = this.getDocs().filter((d) => d.id !== id); writeList('fraga_docs', list); return list; },
-    updateDoc(id, patch) {
-      const list = this.getDocs().map((d) => (d.id === id ? { ...d, ...patch } : d));
-      writeList('fraga_docs', list);
-      return list;
+    // RLS on the documents table already limits restricted docs to the
+    // matching sector (or admins), so this is just an alias for getDocs().
+    async docsVisibleTo() { return this.getDocs(); },
+    async addDoc(doc) {
+      const { data: { user } } = await sb.auth.getUser();
+      const { data, error } = await sb.from('documents').insert({
+        title: doc.title, category: doc.category, sector: doc.sector, version: doc.version,
+        tone: doc.tone, restricted: !!doc.restricted, owner: doc.owner,
+        file_url: doc.fileData || null, file_name: doc.fileName || null,
+        created_by: user ? user.id : null,
+      }).select().single();
+      if (error) throw error;
+      return data.id;
     },
-    docsVisibleTo(session) {
-      return this.getDocs().filter((d) => !d.restricted || session.accessLevel === 'admin' || d.sector === session.sector);
+    async deleteDoc(id) {
+      const { error } = await sb.from('documents').delete().eq('id', id);
+      if (error) throw error;
+    },
+    async updateDoc(id, patch) {
+      const row = { updated_at: new Date().toISOString() };
+      if (patch.title !== undefined) row.title = patch.title;
+      if (patch.category !== undefined) row.category = patch.category;
+      if (patch.sector !== undefined) row.sector = patch.sector;
+      if (patch.version !== undefined) row.version = patch.version;
+      if (patch.tone !== undefined) row.tone = patch.tone;
+      if (patch.restricted !== undefined) row.restricted = !!patch.restricted;
+      if (patch.fileData !== undefined) row.file_url = patch.fileData;
+      if (patch.fileName !== undefined) row.file_name = patch.fileName;
+      const { error } = await sb.from('documents').update(row).eq('id', id);
+      if (error) throw error;
+    },
+    async isDocRead(id) {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return false;
+      const { data } = await sb.from('document_reads').select('document_id').eq('user_id', user.id).eq('document_id', id).maybeSingle();
+      return !!data;
+    },
+    async markDocRead(id) {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return;
+      await sb.from('document_reads').upsert({ user_id: user.id, document_id: id });
+    },
+    async getReadDocIds() {
+      const { data: { user } } = await sb.auth.getUser();
+      if (!user) return [];
+      const { data } = await sb.from('document_reads').select('document_id').eq('user_id', user.id);
+      return (data || []).map((r) => r.document_id);
     },
 
     /* Announcements: live in Supabase now (shared across the whole company),
@@ -491,7 +520,7 @@
   /* ── export ───────────────────────────────────────────────────────── */
   global.Fraga = {
     $, $$, el, icon,
-    DOCS, ANNOUNCEMENTS, EMPLOYEES, ONBOARDING_STEPS, ONBOARDING_TOPICS, NAV_ITEMS, SECTORS,
+    ANNOUNCEMENTS, EMPLOYEES, ONBOARDING_STEPS, ONBOARDING_TOPICS, NAV_ITEMS, SECTORS,
     DEMO_USER, ADMIN_USER, supabase: sb,
     getSession, setSession, clearSession, requireAuth, requireAdmin, redirectIfAuthed,
     state, formatDate, relativeDay, initials, avatarHtml, qs, toast, confirmDialog, mountShell, init, genId,

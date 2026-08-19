@@ -46,12 +46,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/app.js?v=7"></script>
 <script>
   const session = Fraga.init('documentos');
   if (session) {
     const { $, $$, el, icon, state, formatDate } = Fraga;
-    const DOCS = state.docsVisibleTo(session);
+    let DOCS = [];
+    let readIds = [];
     const list = $('#docList');
     const empty = $('#docEmpty');
     const search = $('#docSearch');
@@ -72,7 +73,7 @@
     }
 
     function buildRow(doc) {
-      const isRead = state.isDocRead(doc.id);
+      const isRead = readIds.includes(doc.id);
       const row = el('div', { class: 'row-card' },
         el('div', { class: 'row-icon tone-' + doc.tone, html: icon('file') }),
         el('div', { class: 'row-body' },
@@ -88,9 +89,9 @@
       const actions = el('div', { class: 'row-actions' });
       const view = el('a', { class: 'btn btn-ghost btn-sm', href: 'documento.html?id=' + doc.id }, 'Visualizar');
       const dl = doc.fileData
-        ? el('a', { class: 'btn btn-primary btn-sm', href: doc.fileData, download: doc.fileName || (doc.title + '.pdf') }, 'Baixar')
+        ? el('a', { class: 'btn btn-primary btn-sm', href: doc.fileData, download: doc.fileName || (doc.title + '.pdf'), target: '_blank' }, 'Baixar')
         : el('button', { class: 'btn btn-primary btn-sm' }, 'Baixar PDF');
-      if (!doc.fileData) dl.addEventListener('click', () => Fraga.toast('Simulando download de "' + doc.title + '.pdf"'));
+      if (!doc.fileData) dl.addEventListener('click', () => Fraga.toast('Nenhum arquivo foi anexado a este documento ainda.'));
       actions.appendChild(view);
       actions.appendChild(dl);
       row.appendChild(actions);
@@ -113,7 +114,10 @@
     });
     search.addEventListener('input', render);
 
-    render();
+    (async () => {
+      [DOCS, readIds] = await Promise.all([state.docsVisibleTo(session), state.getReadDocIds()]);
+      render();
+    })();
   }
 </script>
 </body>

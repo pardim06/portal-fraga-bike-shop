@@ -28,12 +28,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/app.js?v=7"></script>
 <script>
   const session = Fraga.init('documentos');
   if (session) {
     const { $, el, icon, state, formatDate } = Fraga;
-    const DOCS = state.docsVisibleTo(session);
+
+    (async () => {
+    const DOCS = await state.docsVisibleTo(session);
     const doc = DOCS.find((d) => d.id === Fraga.qs('id')) || DOCS[0];
 
     if (!doc) {
@@ -43,14 +45,15 @@
       ));
     } else {
       document.title = doc.title + ' | Portal Fraga Bike Shop';
+      let isRead = await state.isDocRead(doc.id);
 
       function renderMarkAsReadBtn() {
-        const read = state.isDocRead(doc.id);
-        const label = read ? 'Lido' : 'Marcar como lido';
-        const btn = el('button', { class: 'btn ' + (read ? 'btn-ghost' : 'btn-success'), html: icon('check') + '<span>' + label + '</span>' });
-        if (read) btn.setAttribute('disabled', 'true');
-        btn.addEventListener('click', () => {
-          state.markDocRead(doc.id);
+        const label = isRead ? 'Lido' : 'Marcar como lido';
+        const btn = el('button', { class: 'btn ' + (isRead ? 'btn-ghost' : 'btn-success'), html: icon('check') + '<span>' + label + '</span>' });
+        if (isRead) btn.setAttribute('disabled', 'true');
+        btn.addEventListener('click', async () => {
+          await state.markDocRead(doc.id);
+          isRead = true;
           Fraga.toast('Documento marcado como lido.');
           Fraga.mountShell('documentos');
           root.replaceChildren(build());
@@ -77,9 +80,9 @@
         const shareBtn = el('button', { class: 'btn btn-ghost btn-sm', html: icon('share') + '<span>Compartilhar</span>' });
         shareBtn.addEventListener('click', () => Fraga.toast('Link do documento copiado para a área de transferência.'));
         const dlBtn = doc.fileData
-          ? el('a', { class: 'btn btn-ghost btn-sm', href: doc.fileData, download: doc.fileName || (doc.title + '.pdf'), html: icon('download') + '<span>Baixar</span>' })
+          ? el('a', { class: 'btn btn-ghost btn-sm', href: doc.fileData, download: doc.fileName || (doc.title + '.pdf'), target: '_blank', html: icon('download') + '<span>Baixar</span>' })
           : el('button', { class: 'btn btn-ghost btn-sm', html: icon('download') + '<span>Baixar</span>' });
-        if (!doc.fileData) dlBtn.addEventListener('click', () => Fraga.toast('Simulando download de "' + doc.title + '.pdf"'));
+        if (!doc.fileData) dlBtn.addEventListener('click', () => Fraga.toast('Nenhum arquivo foi anexado a este documento ainda.'));
         const expandBtn = el('button', { class: 'btn btn-ghost btn-sm', 'data-expand-btn': '', html: icon('maximize') + '<span>Expandir</span>' });
         expandBtn.addEventListener('click', () => {
           const isFull = wrap.classList.toggle('is-fullscreen');
@@ -91,10 +94,13 @@
         toolbar.appendChild(expandBtn);
         toolbar.appendChild(renderMarkAsReadBtn());
 
+        const ext = (doc.fileName || '').split('.').pop().toLowerCase();
+        const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext);
+        const isPdf = ext === 'pdf';
         let previewInner;
-        if (doc.fileData && /^data:image\//.test(doc.fileData)) {
+        if (doc.fileData && isImage) {
           previewInner = el('img', { src: doc.fileData, alt: doc.title, style: 'max-width:100%;max-height:100%;border-radius:10px;object-fit:contain;' });
-        } else if (doc.fileData && /^data:application\/pdf/.test(doc.fileData)) {
+        } else if (doc.fileData && isPdf) {
           previewInner = el('embed', { src: doc.fileData, type: 'application/pdf', style: 'width:100%;height:100%;min-height:320px;border-radius:10px;' });
         } else {
           previewInner = el('div', { class: 'doc-preview-box' },
@@ -121,14 +127,16 @@
       });
 
       // Auto mark-as-read after a short delay reading, mirroring real reading behaviour.
-      if (!state.isDocRead(doc.id)) {
-        setTimeout(() => {
-          state.markDocRead(doc.id);
+      if (!isRead) {
+        setTimeout(async () => {
+          await state.markDocRead(doc.id);
+          isRead = true;
           Fraga.mountShell('documentos');
           root.replaceChildren(build());
         }, 4000);
       }
     }
+    })();
   }
 </script>
 </body>

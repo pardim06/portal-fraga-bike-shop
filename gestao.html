@@ -64,12 +64,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/app.js?v=7"></script>
 <script>
   const session = Fraga.init('gestao');
   if (session) {
     const { $, el, state } = Fraga;
-    $('#kpiDocs').textContent = state.getDocs().length;
+    state.getDocs().then((items) => { $('#kpiDocs').textContent = items.length; });
     state.getAnnouncements().then((items) => { $('#kpiAnn').textContent = items.length; });
 
     const sectorReads = [
