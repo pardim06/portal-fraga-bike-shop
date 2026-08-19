@@ -76,7 +76,7 @@
             el('div', { class: 'name' }, e.name),
             el('div', { class: 'role' }, e.role + ' · ' + e.sector)
           ),
-          el('div', { class: 'date' }, e.day + ' ' + MONTH_NAMES_LOWER[currentMonth - 1].slice(0, 3) + (e.year ? '/' + e.year : '') + (isToday ? ' 🎉' : ''))
+          el('div', { class: 'date' }, e.day + ' ' + MONTH_NAMES_LOWER[currentMonth - 1].slice(0, 3) + (e.year ? ' · ' + (new Date().getFullYear() - e.year) + ' anos' : '') + (isToday ? ' 🎉' : ''))
         ));
       });
     }

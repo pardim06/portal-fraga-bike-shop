@@ -545,7 +545,7 @@
           el('div', { class: 'avatar', style: 'margin-right:2px;' }, initials(emp.name)),
           el('div', { class: 'row-body' },
             el('div', { class: 'row-title' }, emp.name),
-            el('div', { class: 'row-meta' }, emp.role, el('span', { class: 'dot' }, '·'), emp.sector, el('span', { class: 'dot' }, '·'), emp.day + ' ' + MONTH_ABBR[emp.month - 1] + (emp.year ? '/' + emp.year : ''))
+            el('div', { class: 'row-meta' }, emp.role, el('span', { class: 'dot' }, '·'), emp.sector, el('span', { class: 'dot' }, '·'), emp.day + ' ' + MONTH_ABBR[emp.month - 1] + (emp.year ? ' · ' + (new Date().getFullYear() - emp.year) + ' anos' : ''))
           )
         );
         const del = el('button', { class: 'btn btn-ghost btn-sm', html: icon('trash') });
