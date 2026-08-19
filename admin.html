@@ -298,7 +298,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/app.js?v=9"></script>
 <script>
   const session = Fraga.requireAdmin();
   if (session) {
@@ -536,10 +536,12 @@
     const MONTH_ABBR = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
     function daysInMonth2026(month) { return new Date(2026, month, 0).getDate(); }
 
-    function renderEmp() {
+    async function renderEmp() {
       const list = $('#empAdminList');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      const items = await state.getEmployees();
       list.innerHTML = '';
-      const items = state.getEmployees();
+      if (!items.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhum aniversariante cadastrado ainda.'))); return; }
       items.slice().sort((a, b) => a.month - b.month || a.day - b.day).forEach((emp) => {
         const row = el('div', { class: 'row-card' },
           el('div', { class: 'avatar', style: 'margin-right:2px;' }, initials(emp.name)),
@@ -548,14 +550,28 @@
             el('div', { class: 'row-meta' }, emp.role, el('span', { class: 'dot' }, '·'), emp.sector, el('span', { class: 'dot' }, '·'), emp.day + ' ' + MONTH_ABBR[emp.month - 1] + (emp.year ? ' · ' + (new Date().getFullYear() - emp.year) + ' anos' : ''))
           )
         );
-        const del = el('button', { class: 'btn btn-ghost btn-sm', html: icon('trash') });
-        del.addEventListener('click', () => { state.deleteEmployee(emp.id); renderEmp(); Fraga.toast('Colaborador removido.'); });
+        const del = el('button', { class: 'icon-btn icon-btn-sm icon-btn-danger', html: icon('trash'), 'aria-label': 'Excluir aniversariante', title: 'Excluir' });
+        del.addEventListener('click', async () => {
+          const ok = await Fraga.confirmDialog({
+            title: 'Excluir aniversariante?',
+            message: `${emp.name} deixará de aparecer na lista de aniversariantes.`,
+            confirmText: 'Excluir', cancelText: 'Cancelar', danger: true,
+          });
+          if (!ok) return;
+          try {
+            await state.deleteEmployee(emp.id);
+            renderEmp();
+            Fraga.toast('Colaborador removido.');
+          } catch (err) {
+            Fraga.toast('Não foi possível excluir: ' + (err.message || err));
+          }
+        });
         row.appendChild(del);
         list.appendChild(row);
       });
     }
 
-    $('#empForm').addEventListener('submit', (e) => {
+    $('#empForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = $('#empName').value.trim();
       const role = $('#empRole').value.trim();
@@ -566,10 +582,14 @@
         Fraga.toast('Informe um dia válido para o mês selecionado.');
         return;
       }
-      state.addEmployee({ id: Fraga.genId('e'), name, role, sector: $('#empSector').value, month, day, year });
-      renderEmp();
-      Fraga.toast('Aniversariante adicionado.');
-      e.target.reset();
+      try {
+        await state.addEmployee({ name, role, sector: $('#empSector').value, month, day, year });
+        renderEmp();
+        Fraga.toast('Aniversariante adicionado.');
+        e.target.reset();
+      } catch (err) {
+        Fraga.toast('Não foi possível adicionar: ' + (err.message || err));
+      }
     });
 
     /* ── Onboarding ───────────────────────────────────────────────── */

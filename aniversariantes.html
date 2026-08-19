@@ -46,12 +46,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/app.js?v=9"></script>
 <script>
   const session = Fraga.init('aniversariantes');
   if (session) {
     const { $, el, state } = Fraga;
-    const EMPLOYEES = state.getEmployees();
+    let EMPLOYEES = [];
     const TODAY_MONTH = 8;
     const TODAY_DAY = 17;
     const MONTH_NAMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -117,7 +117,7 @@
       render();
     });
 
-    render();
+    state.getEmployees().then((items) => { EMPLOYEES = items; render(); });
   }
 </script>
 </body>

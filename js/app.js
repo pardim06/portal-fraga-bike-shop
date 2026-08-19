@@ -85,13 +85,6 @@
     { id: 'a5', tag: 'geral', title: 'Campanha interna: Setembro Amarelo na Fraga', author: 'RH', date: '2026-08-05', body: 'Em setembro teremos rodas de conversa e conteúdos sobre saúde mental toda quarta-feira. Fiquem de olho nos comunicados para a agenda completa.' },
   ];
 
-  const EMPLOYEES = [
-    { id: 'e1', name: 'Bruno Ferreira', role: 'Vendedor', sector: 'Loja Fraga Geral', month: 8, day: 18 },
-    { id: 'e2', name: 'Larissa Nunes', role: 'Analista', sector: 'Administrativo', month: 8, day: 22 },
-    { id: 'e3', name: 'Diego Souza', role: 'Analista', sector: 'E-commerce', month: 8, day: 27 },
-    { id: 'e4', name: 'Renata Alves', role: 'Coordenadora', sector: 'Oficina', month: 8, day: 5 },
-    { id: 'e5', name: 'Teste', role: 'Analista de E-commerce', sector: 'E-commerce', month: 8, day: 30 },
-  ];
 
 
   const ONBOARDING_TOPICS = [
@@ -293,10 +286,23 @@
       }
     },
 
-    /* Team roster / birthdays: admin-managed, seeded from EMPLOYEES. */
-    getEmployees() { return readOrSeed('fraga_employees', EMPLOYEES); },
-    addEmployee(emp) { const list = this.getEmployees(); list.push(emp); writeList('fraga_employees', list); return list; },
-    deleteEmployee(id) { const list = this.getEmployees().filter((e) => e.id !== id); writeList('fraga_employees', list); return list; },
+    /* Employees (aniversariantes/equipe): live in Supabase now, shared
+       across the whole company. */
+    async getEmployees() {
+      const { data, error } = await sb.from('employees').select('*').order('name');
+      if (error) { console.error(error); return []; }
+      return data.map((e) => ({ id: e.id, name: e.name, role: e.role, sector: e.sector, day: e.day, month: e.month, year: e.birth_year || null }));
+    },
+    async addEmployee(emp) {
+      const { error } = await sb.from('employees').insert({
+        name: emp.name, role: emp.role, sector: emp.sector, day: emp.day, month: emp.month, birth_year: emp.year || null,
+      });
+      if (error) throw error;
+    },
+    async deleteEmployee(id) {
+      const { error } = await sb.from('employees').delete().eq('id', id);
+      if (error) throw error;
+    },
 
     /* Onboarding: live in Supabase now (shared across the whole company).
        Step definitions (label + sector) are admin-managed; each person's
@@ -527,7 +533,7 @@
   /* ── export ───────────────────────────────────────────────────────── */
   global.Fraga = {
     $, $$, el, icon,
-    ANNOUNCEMENTS, EMPLOYEES, ONBOARDING_TOPICS, NAV_ITEMS, SECTORS,
+    ANNOUNCEMENTS, ONBOARDING_TOPICS, NAV_ITEMS, SECTORS,
     DEMO_USER, ADMIN_USER, supabase: sb,
     getSession, setSession, clearSession, requireAuth, requireAdmin, redirectIfAuthed,
     state, formatDate, relativeDay, initials, avatarHtml, qs, toast, confirmDialog, mountShell, init, genId,

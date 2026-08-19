@@ -70,12 +70,11 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=8"></script>
+<script src="js/app.js?v=9"></script>
 <script>
   const session = Fraga.init('dashboard');
   if (session) {
     const { $, el, icon, state, relativeDay } = Fraga;
-    const EMPLOYEES = state.getEmployees();
     const firstName = session.name.split(' ')[0];
     const hour = new Date().getHours();
     const greetWord = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
@@ -108,15 +107,17 @@
 
     // Birthdays this month, soonest first
     const bWrap = $('#dashBirthdays');
-    EMPLOYEES.filter((e) => e.month === 8).sort((a, b) => a.day - b.day).slice(0, 3).forEach((e) => {
-      bWrap.appendChild(el('div', { class: 'birthday-item', style: 'padding:12px 14px;' },
-        el('div', { class: 'avatar', html: Fraga.initials(e.name) }),
-        el('div', {},
-          el('div', { class: 'name', style: 'font-size:13.5px;' }, e.name),
-          el('div', { class: 'role' }, e.sector)
-        ),
-        el('div', { class: 'date' }, e.day + ' ago')
-      ));
+    state.getEmployees().then((EMPLOYEES) => {
+      EMPLOYEES.filter((e) => e.month === 8).sort((a, b) => a.day - b.day).slice(0, 3).forEach((e) => {
+        bWrap.appendChild(el('div', { class: 'birthday-item', style: 'padding:12px 14px;' },
+          el('div', { class: 'avatar', html: Fraga.initials(e.name) }),
+          el('div', {},
+            el('div', { class: 'name', style: 'font-size:13.5px;' }, e.name),
+            el('div', { class: 'role' }, e.sector)
+          ),
+          el('div', { class: 'date' }, e.day + ' ago')
+        ));
+      });
     });
   }
 </script>
