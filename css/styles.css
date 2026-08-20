@@ -802,17 +802,26 @@ body.confirm-lock{ overflow: hidden; }
 .org-wrap{ overflow-x: auto; padding: 44px 24px 70px; }
 .org-tree{ display: flex; justify-content: center; gap: 0; min-width: max-content; }
 .org-node-wrap{ display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 18px; }
+
+/* Vertical stem down from a parent card -- only for non-root people. */
 .org-node-wrap.has-parent{ padding-top: 34px; }
 .org-node-wrap.has-parent::before{
   content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 34px;
   background: var(--line-strong); z-index: 0;
 }
-.org-node-wrap.has-parent::after{
+
+/* Horizontal bar connecting siblings -- applies both to people sharing a
+   manager AND to multiple people at the very top of the chain. */
+.org-children > .org-node-wrap:not(:only-child)::after,
+.org-tree > .org-node-wrap:not(:only-child)::after{
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--line-strong); z-index: 0;
 }
-.org-children > .org-node-wrap.has-parent:first-child::after{ left: 50%; }
-.org-children > .org-node-wrap.has-parent:last-child::after{ right: 50%; }
-.org-children > .org-node-wrap.has-parent:only-child::after{ display: none; }
+.org-children > .org-node-wrap:not(:only-child):first-child::after,
+.org-tree > .org-node-wrap:not(:only-child):first-child::after{ left: 50%; }
+.org-children > .org-node-wrap:not(:only-child):last-child::after,
+.org-tree > .org-node-wrap:not(:only-child):last-child::after{ right: 50%; }
+.org-tree > .org-node-wrap:not(:only-child){ padding-top: 34px; }
+
 .org-children{ display: flex; justify-content: center; position: relative; z-index: 0; }
 .org-node-wrap.is-collapsed > .org-children{ display: none; }
 
