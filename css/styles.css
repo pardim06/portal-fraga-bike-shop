@@ -798,6 +798,66 @@ body.confirm-lock{ overflow: hidden; }
 .confirm-actions{ display: flex; gap: 10px; justify-content: center; }
 .confirm-actions .btn{ flex: 1; }
 
+/* Organograma */
+.org-wrap{ overflow-x: auto; padding: 44px 24px 70px; }
+.org-tree{ display: flex; justify-content: center; gap: 0; min-width: max-content; }
+.org-node-wrap{ display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 18px; }
+.org-node-wrap.has-parent{ padding-top: 34px; }
+.org-node-wrap.has-parent::before{
+  content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 34px;
+  background: var(--line-strong);
+}
+.org-children{ display: flex; justify-content: center; position: relative; padding-top: 34px; }
+.org-children > .org-node-wrap{ padding-top: 0; }
+.org-children > .org-node-wrap::before{ height: 34px; }
+.org-children > .org-node-wrap::after{
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--line-strong);
+}
+.org-children > .org-node-wrap:first-child::after{ left: 50%; }
+.org-children > .org-node-wrap:last-child::after{ right: 50%; }
+.org-children > .org-node-wrap:only-child::after{ display: none; }
+.org-node-wrap.is-collapsed > .org-children{ display: none; }
+
+.org-card{
+  position: relative; width: 172px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 18px 14px 16px; text-align: center; cursor: pointer;
+  box-shadow: var(--shadow-sm); transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  animation: org-in 320ms ease both;
+}
+.org-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--orange-line); }
+.org-card .avatar{ width: 56px; height: 56px; font-size: 18px; margin: 0 auto 10px; }
+.org-card img.avatar{ width: 56px; height: 56px; margin: 0 auto 10px; }
+.org-name{ font-weight: 700; font-size: 13.5px; margin-bottom: 2px; }
+.org-role{ font-size: 12px; color: var(--ink-soft); line-height: 1.35; }
+
+.org-toggle{
+  position: absolute; left: 50%; bottom: -11px; transform: translateX(-50%);
+  width: 22px; height: 22px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 15px; line-height: 1; font-weight: 700; z-index: 2;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+.org-toggle:hover{ background: var(--orange); color: var(--white); border-color: var(--orange); }
+@keyframes org-in{ from{ opacity: 0; transform: translateY(6px) scale(0.97); } to{ opacity: 1; transform: none; } }
+
+.org-detail-card{
+  position: relative; background: var(--surface); border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
+  padding: 34px 30px 28px; width: 100%; max-width: 340px; text-align: center;
+  transform: translateY(10px) scale(0.97); opacity: 0; transition: all 220ms cubic-bezier(.3,.8,.4,1);
+}
+.confirm-overlay.show .org-detail-card{ transform: translateY(0) scale(1); opacity: 1; }
+.org-detail-card .avatar{ width: 84px; height: 84px; font-size: 26px; margin: 0 auto 16px; }
+.org-detail-card img.avatar{ width: 84px; height: 84px; margin: 0 auto 16px; }
+.org-detail-card h3{ font-size: 18px; margin-bottom: 4px; }
+.org-detail-card p.org-detail-role{ color: var(--ink-soft); font-size: 13.5px; margin-bottom: 24px; }
+.org-detail-actions{ display: flex; flex-direction: column; gap: 10px; }
+.org-detail-close{
+  position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border-radius: 999px;
+  border: none; background: transparent; color: var(--ink-faint); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 140ms ease, color 140ms ease;
+}
+.org-detail-close:hover{ background: var(--bg); color: var(--ink); }
+
 /* Preloader: a brief, cinematic entrance before the landing page reveals
    itself. Reuses the sidebar/login "dark surface" language. */
 body.preload-lock{ overflow: hidden; height: 100vh; }

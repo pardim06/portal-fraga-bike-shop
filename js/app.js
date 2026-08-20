@@ -67,6 +67,7 @@
     trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
     pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/><path d="M15 5l4 4"/>',
     maximize: '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/>',
+    phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
     minimize: '<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>',
     'plus-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>',
     'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
@@ -102,6 +103,7 @@
     { key: 'comunicados', label: 'Comunicados', href: 'comunicados.html', icon: 'bell' },
     { key: 'aniversariantes', label: 'Aniversariantes', href: 'aniversariantes.html', icon: 'gift' },
     { key: 'onboarding', label: 'Onboarding', href: 'onboarding.html', icon: 'check-circle' },
+    { key: 'organograma', label: 'Organograma', href: 'organograma.html', icon: 'users' },
     { key: 'gestao', label: 'Gestão', href: 'gestao.html', icon: 'bar-chart', adminOnly: true },
   ];
 
@@ -350,6 +352,35 @@
       if (!steps.length) return 0;
       const done = steps.filter((s) => s.done).length;
       return Math.round((done / steps.length) * 100);
+    },
+
+    /* Organograma: standalone company chart (name, cargo, foto, telefone),
+       not linked to the login/profiles system. Admin-managed. */
+    async getOrgChart() {
+      const { data, error } = await sb.from('org_chart_people').select('*').order('sort_order').order('created_at');
+      if (error) { console.error(error); return []; }
+      return data.map((p) => ({ id: p.id, name: p.name, role: p.role, phone: p.phone, photoUrl: p.photo_url, parentId: p.parent_id }));
+    },
+    async addOrgPerson(person) {
+      const { data, error } = await sb.from('org_chart_people').insert({
+        name: person.name, role: person.role, phone: person.phone || null, parent_id: person.parentId || null,
+      }).select().single();
+      if (error) throw error;
+      return data.id;
+    },
+    async updateOrgPerson(id, patch) {
+      const row = {};
+      if (patch.name !== undefined) row.name = patch.name;
+      if (patch.role !== undefined) row.role = patch.role;
+      if (patch.phone !== undefined) row.phone = patch.phone || null;
+      if (patch.parentId !== undefined) row.parent_id = patch.parentId || null;
+      if (patch.photoUrl !== undefined) row.photo_url = patch.photoUrl;
+      const { error } = await sb.from('org_chart_people').update(row).eq('id', id);
+      if (error) throw error;
+    },
+    async deleteOrgPerson(id) {
+      const { error } = await sb.from('org_chart_people').delete().eq('id', id);
+      if (error) throw error;
     },
   };
 

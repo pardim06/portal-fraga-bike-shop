@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=10">
+<link rel="stylesheet" href="css/styles.css?v=11">
 </head>
 <body data-page="admin">
 <div class="overlay-scrim" id="scrim"></div>
@@ -28,6 +28,7 @@
         <button class="chip" type="button" data-tab="ann" aria-pressed="false">Comunicados</button>
         <button class="chip" type="button" data-tab="emp" aria-pressed="false">Aniversariantes</button>
         <button class="chip" type="button" data-tab="onb" aria-pressed="false">Onboarding</button>
+        <button class="chip" type="button" data-tab="org" aria-pressed="false">Organograma</button>
         <button class="chip" type="button" data-tab="sec" aria-pressed="false">Segurança</button>
       </div>
 
@@ -219,6 +220,61 @@
         </div>
       </section>
 
+      <!-- Organograma -->
+      <section class="admin-panel" data-panel="org" hidden>
+        <div class="two-col">
+          <div class="card card-pad">
+            <h3 class="admin-form-title" id="orgFormTitle"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span>Adicionar pessoa</span></h3>
+            <form id="orgForm">
+              <div class="field">
+                <label for="orgName">Nome completo</label>
+                <input type="text" id="orgName" placeholder="Nome completo" required />
+              </div>
+              <div class="field">
+                <label for="orgPhoto">Foto (opcional)</label>
+                <label class="file-drop" id="orgPhotoDrop" style="padding:18px;">
+                  <input type="file" id="orgPhoto" class="file-drop-input" accept="image/*" />
+                  <span class="file-drop-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span>
+                  <span class="file-drop-text">
+                    <strong>Clique para escolher uma foto</strong>
+                    <span>JPG ou PNG, até 2 MB</span>
+                  </span>
+                </label>
+                <div class="file-chip" id="orgPhotoChip" hidden>
+                  <img id="orgPhotoPreview" alt="" style="width:28px;height:28px;border-radius:999px;object-fit:cover;flex-shrink:0;" />
+                  <span class="name" id="orgPhotoName"></span>
+                  <button type="button" id="orgPhotoRemove" aria-label="Remover foto">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="admin-field-row">
+                <div class="field">
+                  <label for="orgRole">Cargo</label>
+                  <input type="text" id="orgRole" placeholder="Ex.: Gerente de E-commerce" required />
+                </div>
+                <div class="field">
+                  <label for="orgPhone">Telefone (opcional)</label>
+                  <input type="text" id="orgPhone" placeholder="(11) 99999-9999" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="orgParent">Reporta a</label>
+                <select id="orgParent">
+                  <option value="">Ninguém (topo do organograma)</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block" id="orgFormSubmit">Adicionar ao organograma</button>
+              <button type="button" class="btn btn-ghost btn-block" id="orgFormCancel" style="margin-top:10px;" hidden>Cancelar edição</button>
+            </form>
+          </div>
+          <div class="card card-pad">
+            <h3 class="admin-form-title">Pessoas no organograma</h3>
+            <div class="list-stack" id="orgAdminList"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- Segurança -->
       <section class="admin-panel" data-panel="sec" hidden>
         <div class="two-col">
@@ -298,12 +354,12 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/app.js?v=11"></script>
 <script>
   const session = Fraga.requireAdmin();
   if (session) {
     Fraga.mountShell('admin');
-    const { $, $$, el, icon, state, formatDate, SECTORS, initials } = Fraga;
+    const { $, $$, el, icon, state, formatDate, SECTORS, initials, avatarHtml } = Fraga;
 
     // Populate sector selects.
     ['docSector', 'empSector'].forEach((id) => {
@@ -642,6 +698,173 @@
       }
     });
 
+    /* ── Organograma ──────────────────────────────────────────────── */
+    let editingOrgId = null;
+
+    const orgPhoto = $('#orgPhoto');
+    const orgPhotoDrop = $('#orgPhotoDrop');
+    const orgPhotoChip = $('#orgPhotoChip');
+
+    function showSelectedOrgPhoto(file) {
+      if (!file) { orgPhotoChip.hidden = true; orgPhotoDrop.hidden = false; return; }
+      $('#orgPhotoName').textContent = file.name;
+      $('#orgPhotoPreview').src = URL.createObjectURL(file);
+      orgPhotoChip.hidden = false;
+      orgPhotoDrop.hidden = true;
+    }
+    function clearSelectedOrgPhoto() { orgPhoto.value = ''; showSelectedOrgPhoto(null); }
+
+    orgPhoto.addEventListener('change', () => showSelectedOrgPhoto(orgPhoto.files[0]));
+    $('#orgPhotoRemove').addEventListener('click', clearSelectedOrgPhoto);
+    ['dragover', 'dragenter'].forEach((evt) => orgPhotoDrop.addEventListener(evt, (e) => { e.preventDefault(); orgPhotoDrop.classList.add('is-dragover'); }));
+    ['dragleave', 'dragend'].forEach((evt) => orgPhotoDrop.addEventListener(evt, () => orgPhotoDrop.classList.remove('is-dragover')));
+    orgPhotoDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      orgPhotoDrop.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) { orgPhoto.files = e.dataTransfer.files; showSelectedOrgPhoto(orgPhoto.files[0]); }
+    });
+
+    async function uploadOrgPhoto(personId, file) {
+      const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `${personId}/photo.${ext}`;
+      const { error: upErr } = await Fraga.supabase.storage.from('org-chart').upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = Fraga.supabase.storage.from('org-chart').getPublicUrl(path);
+      const photoUrl = data.publicUrl + '?v=' + Date.now();
+      await state.updateOrgPerson(personId, { photoUrl });
+    }
+
+    function orgDescendantIds(list, rootId) {
+      const ids = new Set();
+      let frontier = [rootId];
+      while (frontier.length) {
+        const next = [];
+        list.forEach((p) => { if (frontier.includes(p.parentId) && !ids.has(p.id)) { ids.add(p.id); next.push(p.id); } });
+        frontier = next;
+      }
+      return ids;
+    }
+
+    async function populateOrgParentSelect(excludeId) {
+      const list = await state.getOrgChart();
+      const excluded = excludeId ? orgDescendantIds(list, excludeId) : new Set();
+      if (excludeId) excluded.add(excludeId);
+      const sel = $('#orgParent');
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Ninguém (topo do organograma)</option>';
+      list.filter((p) => !excluded.has(p.id)).forEach((p) => sel.appendChild(new Option(p.name + ' — ' + p.role, p.id)));
+      sel.value = current;
+      return list;
+    }
+
+    async function renderOrgAdmin() {
+      const list = $('#orgAdminList');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      const items = await populateOrgParentSelect(editingOrgId);
+      list.innerHTML = '';
+      if (!items.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Ninguém cadastrado no organograma ainda.'))); return; }
+      const byId = {};
+      items.forEach((p) => { byId[p.id] = p; });
+      items.forEach((p) => {
+        const parent = p.parentId ? byId[p.parentId] : null;
+        const row = el('div', { class: 'row-card' },
+          el('div', { html: avatarHtml({ name: p.name, avatarUrl: p.photoUrl }, '') }),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, p.name),
+            el('div', { class: 'row-meta' }, p.role, parent ? el('span', {}, ' · reporta a ' + parent.name) : '')
+          )
+        );
+        const actions = el('div', { style: 'display:flex;gap:8px;flex-shrink:0;' });
+        const editBtn = el('button', { class: 'icon-btn icon-btn-sm', html: icon('pencil'), 'aria-label': 'Editar pessoa', title: 'Editar' });
+        editBtn.addEventListener('click', () => enterOrgEditMode(p));
+        const del = el('button', { class: 'icon-btn icon-btn-sm icon-btn-danger', html: icon('trash'), 'aria-label': 'Excluir pessoa', title: 'Excluir' });
+        del.addEventListener('click', async () => {
+          const ok = await Fraga.confirmDialog({
+            title: 'Excluir do organograma?',
+            message: `${p.name} sai do organograma. Quem reporta a ${p.name} passa a ficar sem gestor direto.`,
+            confirmText: 'Excluir', cancelText: 'Cancelar', danger: true,
+          });
+          if (!ok) return;
+          try {
+            await state.deleteOrgPerson(p.id);
+            if (editingOrgId === p.id) exitOrgEditMode();
+            renderOrgAdmin();
+            Fraga.toast('Removido do organograma.');
+          } catch (err) {
+            Fraga.toast('Não foi possível excluir: ' + (err.message || err));
+          }
+        });
+        actions.appendChild(editBtn);
+        actions.appendChild(del);
+        row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
+    function enterOrgEditMode(p) {
+      editingOrgId = p.id;
+      $('#orgFormTitle span').textContent = 'Editar pessoa';
+      $('#orgName').value = p.name;
+      $('#orgRole').value = p.role;
+      $('#orgPhone').value = p.phone || '';
+      clearSelectedOrgPhoto();
+      populateOrgParentSelect(p.id).then(() => { $('#orgParent').value = p.parentId || ''; });
+      $('#orgFormSubmit').textContent = 'Salvar alterações';
+      $('#orgFormCancel').hidden = false;
+      $('#orgForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function exitOrgEditMode() {
+      editingOrgId = null;
+      $('#orgForm').reset();
+      $('#orgFormTitle span').textContent = 'Adicionar pessoa';
+      clearSelectedOrgPhoto();
+      populateOrgParentSelect();
+      $('#orgFormSubmit').textContent = 'Adicionar ao organograma';
+      $('#orgFormCancel').hidden = true;
+    }
+
+    $('#orgFormCancel').addEventListener('click', exitOrgEditMode);
+
+    $('#orgForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('#orgName').value.trim();
+      const role = $('#orgRole').value.trim();
+      const phone = $('#orgPhone').value.trim();
+      const parentId = $('#orgParent').value || null;
+      if (!name || !role) return;
+
+      const submitBtn = $('#orgFormSubmit');
+      const wasEditing = !!editingOrgId;
+      submitBtn.disabled = true;
+      submitBtn.textContent = wasEditing ? 'Salvando...' : 'Adicionando...';
+
+      try {
+        let personId = editingOrgId;
+        if (wasEditing) {
+          await state.updateOrgPerson(personId, { name, role, phone, parentId });
+        } else {
+          personId = await state.addOrgPerson({ name, role, phone, parentId });
+        }
+        const photoFile = orgPhoto.files[0];
+        if (photoFile) {
+          try { await uploadOrgPhoto(personId, photoFile); }
+          catch (photoErr) {
+            console.error('Falha ao enviar foto:', photoErr);
+            Fraga.toast('Dados salvos, mas a foto falhou: ' + (photoErr.message || photoErr));
+          }
+        }
+        Fraga.toast(wasEditing ? 'Pessoa atualizada.' : 'Pessoa adicionada ao organograma.');
+        exitOrgEditMode();
+        renderOrgAdmin();
+      } catch (err) {
+        Fraga.toast('Não foi possível salvar: ' + (err.message || err));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = editingOrgId ? 'Salvar alterações' : 'Adicionar ao organograma';
+      }
+    });
+
     /* ── Segurança: colaboradores reais, vindos da tabela profiles ──── */
     $('#userSector').innerHTML = '';
     SECTORS.forEach((s) => $('#userSector').appendChild(new Option(s, s)));
@@ -891,6 +1114,7 @@
     renderAnn();
     renderEmp();
     renderOnb();
+    renderOrgAdmin();
     renderSec();
   }
 </script>

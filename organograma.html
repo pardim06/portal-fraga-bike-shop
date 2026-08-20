@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organograma | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=11">
+</head>
+<body data-page="organograma">
+<div class="overlay-scrim" id="scrim"></div>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main-col">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="content">
+      <div class="page-head">
+        <span class="eyebrow">Equipe</span>
+        <h1 class="page-title">Organograma</h1>
+        <p class="page-sub">Conheça a estrutura da Fraga Bike Shop. Clique em uma pessoa para ver o contato.</p>
+      </div>
+
+      <div id="orgRoot"></div>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=11"></script>
+<script>
+  const session = Fraga.init('organograma');
+  if (session) {
+    const { $, el, icon, state, avatarHtml } = Fraga;
+    const root = $('#orgRoot');
+
+    function openDetail(person) {
+      const overlay = el('div', { class: 'confirm-overlay' });
+      const closeBtn = el('button', { type: 'button', class: 'org-detail-close', 'aria-label': 'Fechar' }, icon('x'));
+      const actions = el('div', { class: 'org-detail-actions' });
+
+      const phoneDigits = (person.phone || '').replace(/\D/g, '');
+      if (phoneDigits) {
+        actions.appendChild(el('a', { class: 'btn btn-primary btn-block', href: 'tel:' + phoneDigits, html: icon('phone') + '<span>Ligar</span>' }));
+        actions.appendChild(el('a', {
+          class: 'btn btn-ghost btn-block', href: 'https://wa.me/55' + phoneDigits, target: '_blank', rel: 'noopener',
+          html: icon('share') + '<span>WhatsApp</span>',
+        }));
+      } else {
+        actions.appendChild(el('p', { class: 'hint' }, 'Nenhum telefone cadastrado para esta pessoa.'));
+      }
+
+      const card = el('div', { class: 'org-detail-card' },
+        closeBtn,
+        el('div', { html: avatarHtml({ name: person.name, avatarUrl: person.photoUrl }, '') }),
+        el('h3', {}, person.name),
+        el('p', { class: 'org-detail-role' }, person.role),
+        actions
+      );
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+      document.body.classList.add('confirm-lock');
+      requestAnimationFrame(() => overlay.classList.add('show'));
+
+      function close() {
+        document.removeEventListener('keydown', onKey);
+        overlay.classList.remove('show');
+        document.body.classList.remove('confirm-lock');
+        setTimeout(() => overlay.remove(), 200);
+      }
+      function onKey(e) { if (e.key === 'Escape') close(); }
+      closeBtn.addEventListener('click', close);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+      document.addEventListener('keydown', onKey);
+    }
+
+    function renderNode(person, childrenOf, isRoot, visited) {
+      if (visited.has(person.id)) return null;
+      visited.add(person.id);
+
+      const wrap = el('div', { class: 'org-node-wrap' + (isRoot ? '' : ' has-parent') });
+      const card = el('div', { class: 'org-card' },
+        el('div', { html: avatarHtml({ name: person.name, avatarUrl: person.photoUrl }, '') }),
+        el('div', { class: 'org-name' }, person.name),
+        el('div', { class: 'org-role' }, person.role)
+      );
+      card.addEventListener('click', () => openDetail(person));
+      wrap.appendChild(card);
+
+      const kids = (childrenOf[person.id] || []).map((k) => renderNode(k, childrenOf, false, visited)).filter(Boolean);
+      if (kids.length) {
+        const childrenWrap = el('div', { class: 'org-children' });
+        kids.forEach((k) => childrenWrap.appendChild(k));
+        wrap.appendChild(childrenWrap);
+
+        const toggle = el('button', { type: 'button', class: 'org-toggle', 'aria-label': 'Mostrar ou esconder a equipe de ' + person.name }, '−');
+        toggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const collapsed = wrap.classList.toggle('is-collapsed');
+          toggle.textContent = collapsed ? '+' : '−';
+        });
+        card.appendChild(toggle);
+      }
+      return wrap;
+    }
+
+    state.getOrgChart().then((people) => {
+      if (!people.length) {
+        root.appendChild(el('div', { class: 'empty-state' },
+          icon('users'),
+          el('p', {}, 'Ninguém cadastrado no organograma ainda.'),
+          el('p', { style: 'font-size:12.5px;color:var(--ink-faint);' }, 'Peça para um administrador cadastrar em Painel Admin → Organograma.')
+        ));
+        return;
+      }
+
+      const byId = {};
+      people.forEach((p) => { byId[p.id] = p; });
+      const childrenOf = {};
+      people.forEach((p) => {
+        const validParent = p.parentId && byId[p.parentId] ? p.parentId : null;
+        (childrenOf[validParent] = childrenOf[validParent] || []).push(p);
+      });
+
+      const wrapEl = el('div', { class: 'org-wrap' });
+      const tree = el('div', { class: 'org-tree' });
+      const visited = new Set();
+      (childrenOf[null] || []).forEach((rootPerson) => {
+        const node = renderNode(rootPerson, childrenOf, true, visited);
+        if (node) tree.appendChild(node);
+      });
+      wrapEl.appendChild(tree);
+      root.appendChild(wrapEl);
+    });
+  }
+</script>
+</body>
+</html>
