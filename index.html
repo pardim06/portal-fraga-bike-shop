@@ -26,7 +26,6 @@
         <line x1="5.5" y1="17.5" x2="5.5" y2="14.2"/>
       </g>
     </svg>
-    <p class="preloader-phrase" id="preloaderPhrase"><span id="preloaderPhraseText"></span><span class="cursor" aria-hidden="true"></span></p>
     <span class="visually-hidden">Carregando o Portal Fraga Bike Shop.</span>
   </div>
 </div>
@@ -132,13 +131,9 @@
     });
   });
 
-  // Preloader: types the phrase out, then holds briefly before revealing the page.
+  // Preloader: shows the bike animation briefly before revealing the page.
   (function () {
     const pre = document.getElementById('preloader');
-    const textEl = document.getElementById('preloaderPhraseText');
-    const phraseEl = document.getElementById('preloaderPhrase');
-    const phrase = 'Seja bem-vindo!';
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function hidePreloader() {
       pre.classList.add('is-hidden');
@@ -146,28 +141,7 @@
       setTimeout(() => pre.remove(), 600);
     }
 
-    function typePhrase(onDone) {
-      if (reduceMotion) { textEl.textContent = phrase; onDone(); return; }
-      let i = 0;
-      (function step() {
-        textEl.textContent = phrase.slice(0, i);
-        i++;
-        if (i <= phrase.length) setTimeout(step, 65);
-        else onDone();
-      })();
-    }
-
-    // Total preloader time is tuned to land around 5s: 500ms before typing
-    // starts, slow deliberate typing, then a hold so "Seja bem-vindo!" lingers.
-    setTimeout(() => {
-      typePhrase(() => {
-        phraseEl.classList.add('done');
-        setTimeout(hidePreloader, 2900);
-      });
-    }, 500);
-
-    // Safety net: never trap the user behind the preloader.
-    setTimeout(() => { if (document.getElementById('preloader')) hidePreloader(); }, 8000);
+    setTimeout(hidePreloader, 2200);
   })();
 </script>
 </body>
