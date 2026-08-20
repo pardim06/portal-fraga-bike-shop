@@ -82,8 +82,6 @@
         mediaEl = el('div', { class: 'tr-media' }, el('video', { src: def.mediaUrl, controls: '' }));
       } else if (def.mediaUrl && def.mediaType === 'image') {
         mediaEl = el('div', { class: 'tr-media' }, el('img', { src: def.mediaUrl, alt: def.label }));
-      } else if (def.mediaUrl && (def.mediaName || '').toLowerCase().endsWith('.pdf')) {
-        mediaEl = el('div', { class: 'tr-media' }, el('embed', { src: def.mediaUrl, type: 'application/pdf', style: 'width:100%;height:70vh;border-radius:14px;' }));
       } else if (def.mediaUrl) {
         mediaEl = el('div', { class: 'tr-media' },
           el('a', { class: 'onb-detail-doc', href: def.mediaUrl, target: '_blank', rel: 'noopener', html: icon('file-text') + '<span>' + (def.mediaName || 'Abrir documento') + '</span>' })
