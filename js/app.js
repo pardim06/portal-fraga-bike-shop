@@ -46,6 +46,7 @@
     search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
     'chevron-down': '<polyline points="6 9 12 15 18 9"/>',
     'chevron-left': '<polyline points="15 18 9 12 15 6"/>',
+    'chevron-right': '<polyline points="9 18 15 12 9 6"/>',
     'log-out': '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
     menu: '<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
     x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
@@ -68,6 +69,8 @@
     pencil: '<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/><path d="M15 5l4 4"/>',
     maximize: '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/>',
     phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>',
+    play: '<polygon points="5 3 19 12 5 21 5 3"/>',
+    image: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>',
     minimize: '<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>',
     'plus-circle': '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>',
     'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>',
@@ -312,10 +315,27 @@
     async getOnboardingDefs() {
       const { data, error } = await sb.from('onboarding_steps').select('*').order('created_at', { ascending: true });
       if (error) { console.error(error); return []; }
-      return data.map((s) => ({ id: s.id, label: s.label, sector: s.sector }));
+      return data.map((s) => ({
+        id: s.id, label: s.label, sector: s.sector, description: s.description,
+        mediaUrl: s.media_url, mediaName: s.media_name, mediaType: s.media_type,
+      }));
     },
     async addOnboardingStep(step) {
-      const { error } = await sb.from('onboarding_steps').insert({ label: step.label, sector: step.sector || 'Todos' });
+      const { data, error } = await sb.from('onboarding_steps').insert({
+        label: step.label, sector: step.sector || 'Todos', description: step.description || null,
+      }).select().single();
+      if (error) throw error;
+      return data.id;
+    },
+    async updateOnboardingStep(id, patch) {
+      const row = {};
+      if (patch.label !== undefined) row.label = patch.label;
+      if (patch.sector !== undefined) row.sector = patch.sector;
+      if (patch.description !== undefined) row.description = patch.description || null;
+      if (patch.mediaUrl !== undefined) row.media_url = patch.mediaUrl;
+      if (patch.mediaName !== undefined) row.media_name = patch.mediaName;
+      if (patch.mediaType !== undefined) row.media_type = patch.mediaType;
+      const { error } = await sb.from('onboarding_steps').update(row).eq('id', id);
       if (error) throw error;
     },
     async deleteOnboardingStep(id) {

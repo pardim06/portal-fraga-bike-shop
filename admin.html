@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=16">
+<link rel="stylesheet" href="css/styles.css?v=17">
 </head>
 <body data-page="admin">
 <div class="overlay-scrim" id="scrim"></div>
@@ -197,11 +197,34 @@
       <section class="admin-panel" data-panel="onb" hidden>
         <div class="two-col">
           <div class="card card-pad">
-            <h3 class="admin-form-title"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nova etapa de onboarding</h3>
+            <h3 class="admin-form-title" id="onbFormTitle"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span>Nova etapa de onboarding</span></h3>
             <form id="onbForm">
               <div class="field">
                 <label for="onbLabel">Texto da etapa</label>
                 <input type="text" id="onbLabel" placeholder="Ex.: Conheça o fluxo de trocas do E-commerce" required />
+              </div>
+              <div class="field">
+                <label for="onbDescription">Descrição (opcional)</label>
+                <textarea id="onbDescription" rows="3" placeholder="Explique o que a pessoa vai aprender nessa etapa"></textarea>
+              </div>
+              <div class="field">
+                <label for="onbMedia">Vídeo, foto ou documento (opcional)</label>
+                <label class="file-drop" id="onbMediaDrop">
+                  <input type="file" id="onbMedia" class="file-drop-input" accept="video/*,image/*,application/pdf,.doc,.docx,.ppt,.pptx" />
+                  <span class="file-drop-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 16l-4-4-4 4"/><path d="M12 12v9"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></span>
+                  <span class="file-drop-text">
+                    <strong>Clique para escolher um arquivo</strong>
+                    <span>vídeo, foto ou documento &middot; até 20 MB</span>
+                  </span>
+                </label>
+                <div class="file-chip" id="onbMediaChip" hidden>
+                  <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span class="name" id="onbMediaName"></span>
+                  <button type="button" id="onbMediaRemove" aria-label="Remover arquivo">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <p class="hint" id="onbMediaEditHint" style="margin-top:8px;" hidden>Deixe sem escolher arquivo para manter o arquivo atual.</p>
               </div>
               <div class="field">
                 <label for="onbSector">Aplicar a</label>
@@ -210,7 +233,8 @@
                 </select>
               </div>
               <span class="hint" style="display:block;margin-top:-12px;margin-bottom:16px;">Etapas de um setor específico só aparecem para colaboradores desse setor.</span>
-              <button type="submit" class="btn btn-primary btn-block">Adicionar etapa</button>
+              <button type="submit" class="btn btn-primary btn-block" id="onbFormSubmit">Adicionar etapa</button>
+              <button type="button" class="btn btn-ghost btn-block" id="onbFormCancel" style="margin-top:10px;" hidden>Cancelar edição</button>
             </form>
           </div>
           <div class="card card-pad">
@@ -354,7 +378,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/app.js?v=13"></script>
 <script>
   const session = Fraga.requireAdmin();
   if (session) {
@@ -649,6 +673,54 @@
     });
 
     /* ── Onboarding ───────────────────────────────────────────────── */
+    let editingStepId = null;
+
+    const onbMedia = $('#onbMedia');
+    const onbMediaDrop = $('#onbMediaDrop');
+    const onbMediaChip = $('#onbMediaChip');
+
+    function showSelectedOnbMedia(file) {
+      if (!file) { onbMediaChip.hidden = true; onbMediaDrop.hidden = false; return; }
+      $('#onbMediaName').textContent = file.name;
+      onbMediaChip.hidden = false;
+      onbMediaDrop.hidden = true;
+    }
+    function clearSelectedOnbMedia() { onbMedia.value = ''; showSelectedOnbMedia(null); }
+
+    onbMedia.addEventListener('change', () => showSelectedOnbMedia(onbMedia.files[0]));
+    $('#onbMediaRemove').addEventListener('click', clearSelectedOnbMedia);
+    ['dragover', 'dragenter'].forEach((evt) => onbMediaDrop.addEventListener(evt, (e) => { e.preventDefault(); onbMediaDrop.classList.add('is-dragover'); }));
+    ['dragleave', 'dragend'].forEach((evt) => onbMediaDrop.addEventListener(evt, () => onbMediaDrop.classList.remove('is-dragover')));
+    onbMediaDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      onbMediaDrop.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) { onbMedia.files = e.dataTransfer.files; showSelectedOnbMedia(onbMedia.files[0]); }
+    });
+
+    function mediaTypeFor(file) {
+      if (file.type.startsWith('video/')) return 'video';
+      if (file.type.startsWith('image/')) return 'image';
+      return 'document';
+    }
+
+    async function uploadStepMedia(stepId, file) {
+      const ext = (file.name.split('.').pop() || 'bin').toLowerCase();
+      const path = `${stepId}/media.${ext}`;
+      const { error: upErr } = await Fraga.supabase.storage.from('training-media').upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const { data } = Fraga.supabase.storage.from('training-media').getPublicUrl(path);
+      await state.updateOnboardingStep(stepId, {
+        mediaUrl: data.publicUrl + '?v=' + Date.now(), mediaName: file.name, mediaType: mediaTypeFor(file),
+      });
+    }
+
+    function mediaIconFor(type) {
+      if (type === 'video') return 'play';
+      if (type === 'image') return 'image';
+      if (type === 'document') return 'file-text';
+      return null;
+    }
+
     async function renderOnb() {
       const list = $('#onbAdminList');
       list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
@@ -656,13 +728,17 @@
       list.innerHTML = '';
       if (!items.length) { list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhuma etapa cadastrada ainda.'))); return; }
       items.forEach((s) => {
+        const mediaIcon = mediaIconFor(s.mediaType);
         const row = el('div', { class: 'row-card' },
-          el('div', { class: 'row-icon tone-green', html: icon('check-circle') }),
+          el('div', { class: 'row-icon tone-green', html: icon(mediaIcon || 'check-circle') }),
           el('div', { class: 'row-body' },
             el('div', { class: 'row-title' }, s.label),
-            el('div', { class: 'row-meta' }, s.sector === 'Todos' ? 'Todos os setores' : s.sector)
+            el('div', { class: 'row-meta' }, s.sector === 'Todos' ? 'Todos os setores' : s.sector, mediaIcon ? el('span', {}, ' · com anexo') : '')
           )
         );
+        const actions = el('div', { style: 'display:flex;gap:8px;flex-shrink:0;' });
+        const editBtn = el('button', { class: 'icon-btn icon-btn-sm', html: icon('pencil'), 'aria-label': 'Editar etapa', title: 'Editar' });
+        editBtn.addEventListener('click', () => enterStepEditMode(s));
         const del = el('button', { class: 'icon-btn icon-btn-sm icon-btn-danger', html: icon('trash'), 'aria-label': 'Excluir etapa', title: 'Excluir' });
         del.addEventListener('click', async () => {
           const ok = await Fraga.confirmDialog({
@@ -673,28 +749,80 @@
           if (!ok) return;
           try {
             await state.deleteOnboardingStep(s.id);
+            if (editingStepId === s.id) exitStepEditMode();
             renderOnb();
             Fraga.toast('Etapa removida.');
           } catch (err) {
             Fraga.toast('Não foi possível excluir: ' + (err.message || err));
           }
         });
-        row.appendChild(del);
+        actions.appendChild(editBtn);
+        actions.appendChild(del);
+        row.appendChild(actions);
         list.appendChild(row);
       });
     }
+
+    function enterStepEditMode(s) {
+      editingStepId = s.id;
+      $('#onbFormTitle span').textContent = 'Editar etapa';
+      $('#onbLabel').value = s.label;
+      $('#onbDescription').value = s.description || '';
+      $('#onbSector').value = s.sector;
+      clearSelectedOnbMedia();
+      $('#onbMediaEditHint').hidden = !s.mediaUrl;
+      $('#onbFormSubmit').textContent = 'Salvar alterações';
+      $('#onbFormCancel').hidden = false;
+      $('#onbForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function exitStepEditMode() {
+      editingStepId = null;
+      $('#onbForm').reset();
+      $('#onbFormTitle span').textContent = 'Nova etapa de onboarding';
+      clearSelectedOnbMedia();
+      $('#onbMediaEditHint').hidden = true;
+      $('#onbFormSubmit').textContent = 'Adicionar etapa';
+      $('#onbFormCancel').hidden = true;
+    }
+
+    $('#onbFormCancel').addEventListener('click', exitStepEditMode);
 
     $('#onbForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const label = $('#onbLabel').value.trim();
       if (!label) return;
+      const file = onbMedia.files[0];
+      if (file && file.size > 20 * 1024 * 1024) { Fraga.toast('Arquivo muito grande (máx. 20 MB).'); return; }
+
+      const submitBtn = $('#onbFormSubmit');
+      const wasEditing = !!editingStepId;
+      submitBtn.disabled = true;
+      submitBtn.textContent = wasEditing ? 'Salvando...' : 'Adicionando...';
+
       try {
-        await state.addOnboardingStep({ label, sector: $('#onbSector').value });
+        let stepId = editingStepId;
+        const description = $('#onbDescription').value.trim();
+        if (wasEditing) {
+          await state.updateOnboardingStep(stepId, { label, sector: $('#onbSector').value, description });
+        } else {
+          stepId = await state.addOnboardingStep({ label, sector: $('#onbSector').value, description });
+        }
+        if (file) {
+          try { await uploadStepMedia(stepId, file); }
+          catch (mediaErr) {
+            console.error('Falha ao enviar arquivo:', mediaErr);
+            Fraga.toast('Etapa salva, mas o arquivo falhou: ' + (mediaErr.message || mediaErr));
+          }
+        }
+        Fraga.toast(wasEditing ? 'Etapa atualizada.' : 'Etapa adicionada à trilha de onboarding.');
+        exitStepEditMode();
         renderOnb();
-        Fraga.toast('Etapa adicionada à trilha de onboarding.');
-        e.target.reset();
       } catch (err) {
-        Fraga.toast('Não foi possível adicionar a etapa: ' + (err.message || err));
+        Fraga.toast('Não foi possível salvar: ' + (err.message || err));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = editingStepId ? 'Salvar alterações' : 'Adicionar etapa';
       }
     });
 
