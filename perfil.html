@@ -36,6 +36,7 @@
         <div class="info-grid" style="margin-bottom:36px;padding-bottom:30px;border-bottom:1px solid var(--line);">
           <div class="info-item"><div class="k">Setor</div><div class="v" id="pSector"></div></div>
           <div class="info-item"><div class="k">Admissão</div><div class="v" id="pSince"></div></div>
+          <div class="info-item"><div class="k">Tempo de empresa</div><div class="v" id="pTenure"></div></div>
           <div class="info-item"><div class="k">Status do onboarding</div><div class="v" id="pOnbStatus"></div></div>
           <div class="info-item"><div class="k">Último acesso</div><div class="v">hoje</div></div>
         </div>
@@ -48,7 +49,46 @@
           <div class="stat-card"><div class="stat-num">hoje</div><div class="stat-label">Última atividade</div></div>
         </div>
       </div>
+
+      <div class="panel card-pad" style="margin-top:20px;">
+        <h3 style="font-size:16px;margin-bottom:18px;">Pendências</h3>
+        <div class="list-stack" id="pendList"></div>
+      </div>
     </main>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="editOverlay" hidden>
+  <div class="onb-detail-card" style="max-width:400px;text-align:left;">
+    <button type="button" class="org-detail-close" id="editClose" aria-label="Fechar">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3 style="margin-bottom:20px;">Editar perfil</h3>
+    <form id="editForm">
+      <div class="field">
+        <label for="editName">Nome completo</label>
+        <input type="text" id="editName" required />
+      </div>
+      <div class="field">
+        <label for="editPhoto">Foto de perfil</label>
+        <label class="file-drop" id="editPhotoDrop" style="padding:18px;">
+          <input type="file" id="editPhoto" class="file-drop-input" accept="image/*" />
+          <span class="file-drop-icon"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg></span>
+          <span class="file-drop-text">
+            <strong>Clique para trocar a foto</strong>
+            <span>JPG ou PNG, até 2 MB</span>
+          </span>
+        </label>
+        <div class="file-chip" id="editPhotoChip" hidden>
+          <img id="editPhotoPreview" alt="" style="width:28px;height:28px;border-radius:999px;object-fit:cover;flex-shrink:0;" />
+          <span class="name" id="editPhotoName"></span>
+          <button type="button" id="editPhotoRemove" aria-label="Remover foto">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="editSubmit">Salvar alterações</button>
+    </form>
   </div>
 </div>
 
@@ -57,28 +97,167 @@
 <script>
   const session = Fraga.init('perfil');
   if (session) {
-    const { $, state, formatDate } = Fraga;
+    const { $, el, icon, state, formatDate, avatarHtml } = Fraga;
 
-    $('#pAvatarWrap').innerHTML = Fraga.avatarHtml
-      ? Fraga.avatarHtml(session, '')
-      : '';
-    const pAvatar = $('#pAvatarWrap').firstElementChild;
-    if (pAvatar) { pAvatar.style.width = '92px'; pAvatar.style.height = '92px'; pAvatar.style.fontSize = '26px'; }
+    function renderAvatar() {
+      $('#pAvatarWrap').innerHTML = avatarHtml(session, '');
+      const pAvatar = $('#pAvatarWrap').firstElementChild;
+      if (pAvatar) { pAvatar.style.width = '92px'; pAvatar.style.height = '92px'; pAvatar.style.fontSize = '26px'; }
+    }
+    renderAvatar();
+
+    function tenureFor(sinceIso) {
+      const since = new Date(sinceIso + 'T00:00:00');
+      const now = new Date();
+      let months = (now.getFullYear() - since.getFullYear()) * 12 + (now.getMonth() - since.getMonth());
+      if (now.getDate() < since.getDate()) months--;
+      if (months < 1) return 'Menos de 1 mês';
+      const years = Math.floor(months / 12);
+      const remMonths = months % 12;
+      const parts = [];
+      if (years > 0) parts.push(years + (years === 1 ? ' ano' : ' anos'));
+      if (remMonths > 0) parts.push(remMonths + (remMonths === 1 ? ' mês' : ' meses'));
+      return parts.join(' e ');
+    }
 
     $('#pName').textContent = session.name;
     $('#pRole').textContent = session.role + ' · Setor ' + session.sector;
     $('#pEmail').textContent = session.email;
     $('#pSector').textContent = session.sector;
     $('#pSince').textContent = formatDate(session.since);
+    $('#pTenure').textContent = tenureFor(session.since);
 
     state.onboardingProgress(session).then((pct) => {
       $('#pOnbStatus').textContent = pct === 100 ? 'Concluído' : pct + '% concluído';
       $('#statOnb').textContent = pct + '%';
     });
-    state.getReadDocIds().then((ids) => { $('#statDocs').textContent = ids.length + 11; });
-    state.getReadAnnouncementIds().then((ids) => { $('#statAnn').textContent = ids.length + 17; });
+    state.getReadDocIds().then((ids) => { $('#statDocs').textContent = ids.length; });
+    state.getReadAnnouncementIds().then((ids) => { $('#statAnn').textContent = ids.length; });
 
-    $('#editBtn').addEventListener('click', () => Fraga.toast('Edição de perfil disponível em breve.'));
+    /* ── Pendências: atalhos pro que falta fazer ─────────────────────── */
+    async function renderPending() {
+      const list = $('#pendList');
+      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+
+      const [announcements, readAnnIds, onbSteps] = await Promise.all([
+        state.getAnnouncements(),
+        state.getReadAnnouncementIds(),
+        state.onboardingSteps(session),
+      ]);
+      const unreadAnn = announcements.filter((a) => !readAnnIds.includes(a.id)).length;
+      const pendingOnb = onbSteps.filter((s) => !s.done).length;
+
+      list.innerHTML = '';
+      if (!unreadAnn && !pendingOnb) {
+        list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Tudo em dia por aqui. 🎉')));
+        return;
+      }
+      if (unreadAnn) {
+        list.appendChild(el('a', { class: 'row-card', href: 'comunicados.html', style: 'text-decoration:none;' },
+          el('div', { class: 'row-icon tone-orange', html: icon('bell') }),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, unreadAnn + (unreadAnn === 1 ? ' comunicado não lido' : ' comunicados não lidos')),
+            el('div', { class: 'row-meta' }, 'Clique para ver')
+          ),
+          el('span', { html: icon('chevron-right') })
+        ));
+      }
+      if (pendingOnb) {
+        list.appendChild(el('a', { class: 'row-card', href: 'onboarding.html', style: 'text-decoration:none;' },
+          el('div', { class: 'row-icon tone-green', html: icon('check-circle') }),
+          el('div', { class: 'row-body' },
+            el('div', { class: 'row-title' }, pendingOnb + (pendingOnb === 1 ? ' treinamento pendente' : ' treinamentos pendentes')),
+            el('div', { class: 'row-meta' }, 'Continuar onboarding')
+          ),
+          el('span', { html: icon('chevron-right') })
+        ));
+      }
+    }
+    renderPending();
+
+    /* ── Editar perfil: nome + foto ──────────────────────────────────── */
+    const editOverlay = $('#editOverlay');
+    const editPhoto = $('#editPhoto');
+    const editPhotoDrop = $('#editPhotoDrop');
+    const editPhotoChip = $('#editPhotoChip');
+
+    function showSelectedEditPhoto(file) {
+      if (!file) { editPhotoChip.hidden = true; editPhotoDrop.hidden = false; return; }
+      $('#editPhotoName').textContent = file.name;
+      $('#editPhotoPreview').src = URL.createObjectURL(file);
+      editPhotoChip.hidden = false;
+      editPhotoDrop.hidden = true;
+    }
+    function clearSelectedEditPhoto() { editPhoto.value = ''; showSelectedEditPhoto(null); }
+
+    editPhoto.addEventListener('change', () => showSelectedEditPhoto(editPhoto.files[0]));
+    $('#editPhotoRemove').addEventListener('click', clearSelectedEditPhoto);
+    ['dragover', 'dragenter'].forEach((evt) => editPhotoDrop.addEventListener(evt, (e) => { e.preventDefault(); editPhotoDrop.classList.add('is-dragover'); }));
+    ['dragleave', 'dragend'].forEach((evt) => editPhotoDrop.addEventListener(evt, () => editPhotoDrop.classList.remove('is-dragover')));
+    editPhotoDrop.addEventListener('drop', (e) => {
+      e.preventDefault();
+      editPhotoDrop.classList.remove('is-dragover');
+      if (e.dataTransfer.files.length) { editPhoto.files = e.dataTransfer.files; showSelectedEditPhoto(editPhoto.files[0]); }
+    });
+
+    function openEditProfile() {
+      $('#editName').value = session.name;
+      clearSelectedEditPhoto();
+      editOverlay.hidden = false;
+      document.body.classList.add('confirm-lock');
+      requestAnimationFrame(() => editOverlay.classList.add('show'));
+    }
+    function closeEditProfile() {
+      editOverlay.classList.remove('show');
+      document.body.classList.remove('confirm-lock');
+      setTimeout(() => { editOverlay.hidden = true; }, 200);
+    }
+    $('#editBtn').addEventListener('click', openEditProfile);
+    $('#editClose').addEventListener('click', closeEditProfile);
+    editOverlay.addEventListener('click', (e) => { if (e.target === editOverlay) closeEditProfile(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !editOverlay.hidden) closeEditProfile(); });
+
+    $('#editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('#editName').value.trim();
+      if (!name) return;
+      const submitBtn = $('#editSubmit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Salvando...';
+
+      try {
+        if (name !== session.name) {
+          const { error } = await Fraga.supabase.from('profiles').update({ name }).eq('id', session.id);
+          if (error) throw error;
+          session.name = name;
+        }
+
+        const photoFile = editPhoto.files[0];
+        if (photoFile) {
+          const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase();
+          const path = `${session.id}/avatar.${ext}`;
+          const { error: upErr } = await Fraga.supabase.storage.from('avatars').upload(path, photoFile, { upsert: true });
+          if (upErr) throw upErr;
+          const { data } = Fraga.supabase.storage.from('avatars').getPublicUrl(path);
+          const avatarUrl = data.publicUrl + '?v=' + Date.now();
+          const { error: profErr } = await Fraga.supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('id', session.id);
+          if (profErr) throw profErr;
+          session.avatarUrl = avatarUrl;
+        }
+
+        Fraga.setSession(session);
+        $('#pName').textContent = session.name;
+        renderAvatar();
+        Fraga.mountShell('perfil');
+        Fraga.toast('Perfil atualizado.');
+        closeEditProfile();
+      } catch (err) {
+        Fraga.toast('Não foi possível salvar: ' + (err.message || err));
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Salvar alterações';
+      }
+    });
   }
 </script>
 </body>
