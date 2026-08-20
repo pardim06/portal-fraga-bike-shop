@@ -648,24 +648,48 @@ body.doc-fullscreen-lock{ overflow: hidden; }
 .onb-topic{ padding: 22px; border-radius: var(--r-md); border: 1px solid var(--line); background: var(--surface); }
 .onb-topic .quick-icon{ margin-bottom: 14px; width: 38px; height: 38px; border-radius: 10px; }
 .onb-topic h4{ font-size: 14.5px; }
-.onb-checklist{ display: flex; flex-direction: column; gap: 14px; }
-.onb-check{ display: flex; align-items: center; gap: 14px; cursor: pointer; padding: 6px 0; }
-.onb-check input{ position: absolute; opacity: 0; width: 1px; height: 1px; }
-.onb-check .box{
-  width: 26px; height: 26px; border-radius: 999px; border: 2px solid var(--line-strong); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center; color: var(--white); transition: all 140ms ease;
+/* Training carousel, card-based (Estácio-style: tag, title, progress, button) */
+.onb-carousel-wrap{ display: flex; align-items: center; gap: 10px; }
+.onb-carousel-track{
+  display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+  padding: 4px 2px 10px; flex: 1; min-width: 0;
+  scrollbar-width: none; -ms-overflow-style: none;
 }
-.onb-check input:checked ~ .box{ background: var(--green); border-color: var(--green); }
-.onb-check .label{ font-size: 14.5px; color: var(--ink); }
-.onb-check input:checked ~ .label{ color: var(--ink-soft); text-decoration: line-through; }
-.onb-check .box svg{ width: 14px; height: 14px; opacity: 0; transition: opacity 140ms ease; }
-.onb-check input:checked ~ .box svg{ opacity: 1; }
-.onb-check{ border-radius: 10px; padding: 10px 10px; margin: 0 -10px; transition: background 140ms ease; }
-.onb-check:hover{ background: var(--bg); }
-.onb-media-badge{ display: inline-flex; color: var(--ink-faint); margin-left: 6px; vertical-align: -3px; }
-.onb-media-badge svg{ width: 15px; height: 15px; }
-.onb-open-hint{ margin-left: auto; color: var(--ink-faint); flex-shrink: 0; }
-.onb-open-hint svg{ width: 16px; height: 16px; }
+.onb-carousel-track::-webkit-scrollbar{ display: none; }
+.onb-carousel-arrow{
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 999px; border: 1px solid var(--line-strong);
+  background: var(--surface); color: var(--ink-soft); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 140ms ease, color 140ms ease, opacity 140ms ease;
+}
+.onb-carousel-arrow:hover{ background: var(--orange); color: var(--white); border-color: var(--orange); }
+.onb-carousel-arrow:disabled{ opacity: 0.35; cursor: default; pointer-events: none; }
+.onb-carousel-arrow .icon{ width: 18px; height: 18px; }
+.onb-carousel-dots{ display: flex; justify-content: center; gap: 7px; margin-top: 12px; }
+.onb-carousel-dots .dot{ width: 7px; height: 7px; border-radius: 999px; background: var(--line-strong); transition: background 140ms ease, width 140ms ease; }
+.onb-carousel-dots .dot.is-active{ background: var(--orange); width: 20px; }
+
+.onb-card{
+  flex: 0 0 250px; scroll-snap-align: start; cursor: pointer;
+  background: oklch(0.6 0.15 60 / 0.07); border: 1px solid oklch(0.6 0.15 60 / 0.18);
+  border-radius: var(--r-lg); padding: 20px 18px; display: flex; flex-direction: column; gap: 14px;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.onb-card:hover{ transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: oklch(0.6 0.15 60 / 0.35); }
+.onb-card-tag{
+  align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--orange-dark); background: var(--white); border: 1px solid oklch(0.6 0.15 60 / 0.3);
+  padding: 4px 10px; border-radius: 999px;
+}
+.onb-card-tag.is-done{ color: var(--green); border-color: oklch(0.6 0.15 150 / 0.3); }
+.onb-card-title{ font-size: 15px; font-weight: 700; line-height: 1.4; min-height: 42px; }
+.onb-card-media-icon{ display: inline-flex; color: var(--ink-faint); margin-left: 6px; vertical-align: -2px; }
+.onb-card-media-icon svg{ width: 15px; height: 15px; }
+.onb-card-progress{ display: flex; align-items: center; gap: 10px; }
+.onb-card-progress .track{ flex: 1; height: 5px; border-radius: 999px; background: oklch(0.6 0.15 60 / 0.15); overflow: hidden; }
+.onb-card-progress .fill{ height: 100%; border-radius: 999px; background: var(--orange); transition: width 240ms ease; }
+.onb-card-progress .fill.is-done{ background: var(--green); }
+.onb-card-progress .pct{ font-size: 12px; font-weight: 700; color: var(--ink-soft); flex-shrink: 0; }
+.onb-card-btn{ margin-top: auto; }
 
 /* Training detail modal (shares .confirm-overlay for the backdrop) */
 .onb-detail-card{

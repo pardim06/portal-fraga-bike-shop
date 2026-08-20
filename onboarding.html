@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=17">
+<link rel="stylesheet" href="css/styles.css?v=18">
 </head>
 <body data-page="onboarding">
 <div class="overlay-scrim" id="scrim"></div>
@@ -30,8 +30,17 @@
       <div class="onb-topic-grid" id="topicGrid"></div>
 
       <div class="card card-pad" style="margin-top:8px;">
-        <h3 style="font-size:16px;margin-bottom:18px;">Sua trilha de integração</h3>
-        <div class="onb-checklist" id="checklist"></div>
+        <h3 style="font-size:16px;margin-bottom:18px;">Treinamentos do seu setor</h3>
+        <div class="onb-carousel-wrap">
+          <button class="onb-carousel-arrow" type="button" id="onbPrev" aria-label="Treinamento anterior">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <div class="onb-carousel-track" id="checklist"></div>
+          <button class="onb-carousel-arrow" type="button" id="onbNext" aria-label="Próximo treinamento">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <div class="onb-carousel-dots" id="onbDots"></div>
       </div>
     </main>
   </div>
@@ -65,7 +74,7 @@
       return null;
     }
 
-    function openStepDetail(def, cb) {
+    function openStepDetail(step, def) {
       const overlay = el('div', { class: 'confirm-overlay' });
       const closeBtn = el('button', { type: 'button', class: 'org-detail-close', 'aria-label': 'Fechar', html: icon('x') });
 
@@ -80,13 +89,15 @@
         );
       }
 
-      const doneBtn = el('button', { type: 'button', class: 'btn btn-block ' + (cb.checked ? 'btn-ghost' : 'btn-success'), html: icon('check') + '<span>' + (cb.checked ? 'Concluído' : 'Marcar como concluído') + '</span>' });
-      doneBtn.disabled = cb.checked;
-      doneBtn.addEventListener('click', () => {
-        cb.click();
+      const doneBtn = el('button', { type: 'button', class: 'btn btn-block ' + (step.done ? 'btn-ghost' : 'btn-success'), html: icon('check') + '<span>' + (step.done ? 'Concluído' : 'Marcar como concluído') + '</span>' });
+      doneBtn.disabled = step.done;
+      doneBtn.addEventListener('click', async () => {
         doneBtn.disabled = true;
+        await state.toggleOnboardingStep(step.id, session);
         doneBtn.className = 'btn btn-block btn-ghost';
         doneBtn.innerHTML = icon('check') + '<span>Concluído</span>';
+        renderProgress();
+        renderChecklist();
       });
 
       const card = el('div', { class: 'onb-detail-card' },
@@ -120,41 +131,69 @@
       $('#progressSub').textContent = 'Seu onboarding está ' + pct + '% concluído' + (pct === 100 ? ' 🎉' : '');
     }
 
+    /* Carousel controls: arrows scroll one viewport width, dots reflect
+       the nearest scroll-snapped page. */
+    const track = $('#checklist');
+    const prevBtn = $('#onbPrev');
+    const nextBtn = $('#onbNext');
+    const dotsWrap = $('#onbDots');
+
+    function refreshCarouselControls() {
+      const width = Math.max(track.clientWidth, 1);
+      const pages = Math.max(1, Math.round(track.scrollWidth / width));
+      const current = Math.min(pages - 1, Math.round(track.scrollLeft / width));
+      dotsWrap.innerHTML = '';
+      const hasOverflow = pages > 1;
+      dotsWrap.hidden = !hasOverflow;
+      prevBtn.hidden = !hasOverflow;
+      nextBtn.hidden = !hasOverflow;
+      if (hasOverflow) {
+        for (let i = 0; i < pages; i++) dotsWrap.appendChild(el('span', { class: 'dot' + (i === current ? ' is-active' : '') }));
+        prevBtn.disabled = track.scrollLeft <= 4;
+        nextBtn.disabled = track.scrollLeft >= track.scrollWidth - width - 4;
+      }
+    }
+    prevBtn.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth, behavior: 'smooth' }));
+    nextBtn.addEventListener('click', () => track.scrollBy({ left: track.clientWidth, behavior: 'smooth' }));
+    let scrollTimer;
+    track.addEventListener('scroll', () => { clearTimeout(scrollTimer); scrollTimer = setTimeout(refreshCarouselControls, 80); });
+    window.addEventListener('resize', refreshCarouselControls);
+
     async function renderChecklist() {
-      const list = $('#checklist');
-      list.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
+      track.innerHTML = '<div class="empty-state"><p>Carregando...</p></div>';
       stepDefs = await state.onboardingStepsFor(session);
       const steps = await state.onboardingSteps(session);
-      list.innerHTML = '';
+      track.innerHTML = '';
+      track.scrollLeft = 0;
       if (!steps.length) {
-        list.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhuma etapa de onboarding cadastrada ainda.')));
+        track.appendChild(el('div', { class: 'empty-state' }, el('p', {}, 'Nenhum treinamento cadastrado para o seu setor ainda.')));
+        prevBtn.hidden = true;
+        nextBtn.hidden = true;
+        dotsWrap.hidden = true;
         return;
       }
       steps.forEach((step) => {
         const def = defFor(step.id);
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        cb.checked = step.done;
-        const box = el('span', { class: 'box', html: icon('check') });
         const mediaIcon = mediaIconFor(def.mediaType);
-        const row = el('div', { class: 'onb-check' },
-          cb, box,
-          el('span', { class: 'label' }, def.label || ''),
-          mediaIcon ? el('span', { class: 'onb-media-badge', html: icon(mediaIcon) }) : '',
-          el('span', { class: 'onb-open-hint', html: icon('chevron-right') })
+        const pct = step.done ? 100 : 0;
+        const openBtn = el('button', { type: 'button', class: 'btn btn-primary btn-sm btn-block onb-card-btn' },
+          step.done ? 'Revisar treinamento' : 'Acessar treinamento');
+        const cardEl = el('div', { class: 'onb-card' },
+          el('span', { class: 'onb-card-tag' + (step.done ? ' is-done' : '') },
+            def.sector === 'Todos' ? 'Todos os setores' : def.sector),
+          el('div', { class: 'onb-card-title' }, def.label || '', mediaIcon ? el('span', { class: 'onb-card-media-icon', html: icon(mediaIcon) }) : ''),
+          el('div', { class: 'onb-card-progress' },
+            el('div', { class: 'track' }, el('div', { class: 'fill' + (step.done ? ' is-done' : ''), style: 'width:' + pct + '%;' })),
+            el('span', { class: 'pct' }, pct + '%')
+          ),
+          openBtn
         );
-        cb.addEventListener('click', (e) => e.stopPropagation());
-        cb.addEventListener('change', async () => {
-          cb.disabled = true;
-          await state.toggleOnboardingStep(step.id, session);
-          cb.disabled = false;
-          renderProgress();
-          if (cb.checked) Fraga.toast('Etapa concluída: ' + (def.label || ''));
-        });
-        box.addEventListener('click', (e) => { e.stopPropagation(); cb.click(); });
-        row.addEventListener('click', () => openStepDetail(def, cb));
-        list.appendChild(row);
+        const open = () => openStepDetail(step, def);
+        cardEl.addEventListener('click', open);
+        openBtn.addEventListener('click', (e) => { e.stopPropagation(); open(); });
+        track.appendChild(cardEl);
       });
+      refreshCarouselControls();
     }
 
     renderProgress();
