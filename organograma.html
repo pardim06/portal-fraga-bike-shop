@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=18">
+<link rel="stylesheet" href="css/styles.css?v=20">
 </head>
 <body data-page="organograma">
 <div class="overlay-scrim" id="scrim"></div>
@@ -29,7 +29,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=13"></script>
+<script src="js/app.js?v=14"></script>
 <script>
   const session = Fraga.init('organograma');
   if (session) {
@@ -46,7 +46,7 @@
         actions.appendChild(el('a', { class: 'btn btn-primary btn-block', href: 'tel:' + phoneDigits, html: icon('phone') + '<span>Ligar</span>' }));
         actions.appendChild(el('a', {
           class: 'btn btn-ghost btn-block', href: 'https://wa.me/55' + phoneDigits, target: '_blank', rel: 'noopener',
-          html: icon('share') + '<span>WhatsApp</span>',
+          html: icon('whatsapp') + '<span>WhatsApp</span>',
         }));
       } else {
         actions.appendChild(el('p', { class: 'hint' }, 'Nenhum telefone cadastrado para esta pessoa.'));
@@ -134,7 +134,16 @@
       wrapEl.appendChild(tree);
       root.appendChild(wrapEl);
       enableDragScroll(wrapEl);
+      updateEdgeFade(wrapEl);
     });
+
+    // Fades the left/right edge of the scroll area instead of cutting cards
+    // off abruptly, and only on the side there's actually more to see.
+    function updateEdgeFade(container) {
+      const max = container.scrollWidth - container.clientWidth;
+      container.classList.toggle('fade-left', container.scrollLeft > 4);
+      container.classList.toggle('fade-right', container.scrollLeft < max - 4);
+    }
 
     // Click-and-drag to pan the tree sideways, since it can get wider than
     // the screen. A native scrollbar still works, it's just visually hidden.
@@ -162,7 +171,14 @@
         const dx = e.pageX - startX;
         if (Math.abs(dx) > 4) moved = true;
         container.scrollLeft = startScrollLeft - dx;
+        updateEdgeFade(container);
       });
+      let scrollTimer;
+      container.addEventListener('scroll', () => {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(() => updateEdgeFade(container), 60);
+      });
+      window.addEventListener('resize', () => updateEdgeFade(container));
       // Swallow the click that follows a drag, so it doesn't open a card's
       // contact details right after panning the view.
       container.addEventListener('click', (e) => {

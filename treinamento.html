@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treinamento | Portal Fraga Bike Shop</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=20">
+</head>
+<body data-page="treinamento" style="background:var(--bg);">
+<header class="tr-topbar">
+  <a href="onboarding.html" class="tr-back">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    <span>Voltar</span>
+  </a>
+  <h1 class="tr-topbar-title" id="trTopTitle">Treinamento</h1>
+  <button type="button" class="btn btn-primary btn-sm" id="trDoneBtn">
+    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+    <span id="trDoneLabel">Marcar como concluído</span>
+  </button>
+</header>
+
+<main class="tr-page" id="trPage"></main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/app.js?v=14"></script>
+<script>
+  const session = Fraga.init('treinamento');
+  if (session) {
+    const { $, el, icon, state } = Fraga;
+    const page = $('#trPage');
+
+    function mediaIconFor(type) {
+      if (type === 'video') return 'play';
+      if (type === 'image') return 'image';
+      if (type === 'document') return 'file-text';
+      return null;
+    }
+
+    (async () => {
+      const stepId = Fraga.qs('id');
+      const defs = await state.onboardingStepsFor(session);
+      const def = defs.find((d) => d.id === stepId);
+
+      if (!def) {
+        page.appendChild(el('div', { class: 'empty-state', style: 'margin-top:60px;' },
+          el('div', { html: icon('file') }),
+          el('p', {}, 'Esse treinamento não foi encontrado ou não é do seu setor.'),
+          el('a', { class: 'btn btn-ghost btn-sm', href: 'onboarding.html', style: 'margin-top:14px;display:inline-flex;' }, 'Voltar para o onboarding')
+        ));
+        $('.tr-topbar').style.display = 'none';
+        return;
+      }
+
+      document.title = def.label + ' | Portal Fraga Bike Shop';
+      $('#trTopTitle').textContent = def.label;
+
+      const steps = await state.onboardingSteps(session);
+      let done = (steps.find((s) => s.id === def.id) || {}).done || false;
+
+      const doneBtn = $('#trDoneBtn');
+      function refreshDoneBtn() {
+        doneBtn.disabled = done;
+        doneBtn.classList.toggle('btn-primary', !done);
+        doneBtn.classList.toggle('btn-ghost', done);
+        $('#trDoneLabel').textContent = done ? 'Concluído' : 'Marcar como concluído';
+      }
+      refreshDoneBtn();
+      doneBtn.addEventListener('click', async () => {
+        doneBtn.disabled = true;
+        await state.toggleOnboardingStep(def.id, session);
+        done = true;
+        refreshDoneBtn();
+        Fraga.toast('Treinamento marcado como concluído.');
+      });
+
+      let mediaEl = null;
+      if (def.mediaUrl && def.mediaType === 'video') {
+        mediaEl = el('div', { class: 'tr-media' }, el('video', { src: def.mediaUrl, controls: '' }));
+      } else if (def.mediaUrl && def.mediaType === 'image') {
+        mediaEl = el('div', { class: 'tr-media' }, el('img', { src: def.mediaUrl, alt: def.label }));
+      } else if (def.mediaUrl && (def.mediaName || '').toLowerCase().endsWith('.pdf')) {
+        mediaEl = el('div', { class: 'tr-media' }, el('embed', { src: def.mediaUrl, type: 'application/pdf', style: 'width:100%;height:70vh;border-radius:14px;' }));
+      } else if (def.mediaUrl) {
+        mediaEl = el('div', { class: 'tr-media' },
+          el('a', { class: 'onb-detail-doc', href: def.mediaUrl, target: '_blank', rel: 'noopener', html: icon('file-text') + '<span>' + (def.mediaName || 'Abrir documento') + '</span>' })
+        );
+      }
+
+      const mediaIcon = mediaIconFor(def.mediaType);
+      page.appendChild(el('div', { class: 'tr-hero' },
+        el('span', { class: 'tr-hero-eyebrow' }, def.sector === 'Todos' ? 'Todos os setores' : def.sector),
+        el('h2', {}, def.label)
+      ));
+      page.appendChild(el('div', { class: 'tr-body' },
+        mediaIcon ? el('div', { class: 'tr-section-label' },
+          el('span', { html: icon(mediaIcon) }),
+          el('span', {}, mediaIcon === 'play' ? 'Vídeo do treinamento' : mediaIcon === 'image' ? 'Material do treinamento' : 'Documento do treinamento')
+        ) : '',
+        mediaEl || '',
+        def.description ? el('h3', { style: 'font-size:16px;margin:26px 0 10px;' }, 'Sobre esse treinamento') : '',
+        def.description ? el('p', { class: 'tr-desc' }, def.description) : '',
+        !def.description && !mediaEl ? el('p', { class: 'muted' }, 'Nenhum conteúdo adicional foi anexado a este treinamento ainda.') : ''
+      ));
+    })();
+  }
+</script>
+</body>
+</html>

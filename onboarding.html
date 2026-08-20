@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=18">
+<link rel="stylesheet" href="css/styles.css?v=20">
 </head>
 <body data-page="onboarding">
 <div class="overlay-scrim" id="scrim"></div>
@@ -47,7 +47,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=13"></script>
+<script src="js/app.js?v=14"></script>
 <script>
   const session = Fraga.init('onboarding');
   if (session) {
@@ -74,55 +74,8 @@
       return null;
     }
 
-    function openStepDetail(step, def) {
-      const overlay = el('div', { class: 'confirm-overlay' });
-      const closeBtn = el('button', { type: 'button', class: 'org-detail-close', 'aria-label': 'Fechar', html: icon('x') });
-
-      let mediaEl = null;
-      if (def.mediaUrl && def.mediaType === 'video') {
-        mediaEl = el('div', { class: 'onb-detail-media' }, el('video', { src: def.mediaUrl, controls: '' }));
-      } else if (def.mediaUrl && def.mediaType === 'image') {
-        mediaEl = el('div', { class: 'onb-detail-media' }, el('img', { src: def.mediaUrl, alt: def.label }));
-      } else if (def.mediaUrl) {
-        mediaEl = el('div', { class: 'onb-detail-media' },
-          el('a', { class: 'onb-detail-doc', href: def.mediaUrl, target: '_blank', rel: 'noopener', html: icon('file-text') + '<span>' + (def.mediaName || 'Abrir documento') + '</span>' })
-        );
-      }
-
-      const doneBtn = el('button', { type: 'button', class: 'btn btn-block ' + (step.done ? 'btn-ghost' : 'btn-success'), html: icon('check') + '<span>' + (step.done ? 'Concluído' : 'Marcar como concluído') + '</span>' });
-      doneBtn.disabled = step.done;
-      doneBtn.addEventListener('click', async () => {
-        doneBtn.disabled = true;
-        await state.toggleOnboardingStep(step.id, session);
-        doneBtn.className = 'btn btn-block btn-ghost';
-        doneBtn.innerHTML = icon('check') + '<span>Concluído</span>';
-        renderProgress();
-        renderChecklist();
-      });
-
-      const card = el('div', { class: 'onb-detail-card' },
-        closeBtn,
-        el('h3', {}, def.label || ''),
-        el('div', { class: 'onb-detail-sector' }, def.sector === 'Todos' ? 'Todos os setores' : def.sector),
-        def.description ? el('p', { class: 'onb-detail-desc' }, def.description) : '',
-        mediaEl || '',
-        doneBtn
-      );
-      overlay.appendChild(card);
-      document.body.appendChild(overlay);
-      document.body.classList.add('confirm-lock');
-      requestAnimationFrame(() => overlay.classList.add('show'));
-
-      function close() {
-        document.removeEventListener('keydown', onKey);
-        overlay.classList.remove('show');
-        document.body.classList.remove('confirm-lock');
-        setTimeout(() => overlay.remove(), 200);
-      }
-      function onKey(e) { if (e.key === 'Escape') close(); }
-      closeBtn.addEventListener('click', close);
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-      document.addEventListener('keydown', onKey);
+    function openStepDetail(step) {
+      location.href = 'treinamento.html?id=' + step.id;
     }
 
     async function renderProgress() {
@@ -188,7 +141,7 @@
           ),
           openBtn
         );
-        const open = () => openStepDetail(step, def);
+        const open = () => openStepDetail(step);
         cardEl.addEventListener('click', open);
         openBtn.addEventListener('click', (e) => { e.stopPropagation(); open(); });
         track.appendChild(cardEl);
