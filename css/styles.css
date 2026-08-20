@@ -823,19 +823,25 @@ body.preload-lock{ overflow: hidden; height: 100vh; }
   .preloader-bike{ animation: bike-bob 0.55s ease-in-out infinite; }
 }
 .preloader-road{
-  position: relative; width: 180px; height: 3px; margin: 14px auto 0;
-  overflow: hidden; border-radius: 999px;
-  background: linear-gradient(90deg, transparent, oklch(1 0 0 / 0.16) 12%, oklch(1 0 0 / 0.16) 88%, transparent);
+  position: relative; width: 200px; height: 8px; margin: 18px auto 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, oklch(0.36 0.012 260), oklch(0.24 0.012 260));
+  box-shadow: 0 1px 0 oklch(1 0 0 / 0.08) inset, 0 3px 8px oklch(0 0 0 / 0.4);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+  overflow: hidden;
 }
 .preloader-road::after{
-  content: ''; position: absolute; inset: 0; width: calc(100% + 28px);
-  background-image: repeating-linear-gradient(90deg, var(--orange) 0 14px, transparent 14px 28px);
+  content: ''; position: absolute; left: 0; top: 50%; height: 2px;
+  width: calc(100% + 32px); transform: translateY(-50%);
+  border-radius: 999px;
+  background-image: repeating-linear-gradient(90deg, oklch(1 0 0 / 0.75) 0 10px, transparent 10px 32px);
 }
 @media (prefers-reduced-motion: no-preference){
-  .preloader-road::after{ animation: road-scroll 0.5s linear infinite; }
+  .preloader-road::after{ animation: road-scroll 0.6s linear infinite; }
 }
 @keyframes bike-bob{ 0%, 100%{ transform: translateY(0); } 50%{ transform: translateY(-3px); } }
-@keyframes road-scroll{ from{ transform: translateX(0); } to{ transform: translateX(-28px); } }
+@keyframes road-scroll{ from{ transform: translateX(0); } to{ transform: translateX(-32px); } }
 .preloader-phrase{
   font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.55;
   color: var(--white); min-height: 2.2em;
