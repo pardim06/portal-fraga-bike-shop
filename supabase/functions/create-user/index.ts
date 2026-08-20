@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'create') {
-      const { name, email, password, sector, role, access_level } = body;
+      const { name, email, password, sector, role, since, access_level } = body;
       if (!name || !email || !password) {
         return json({ error: 'Nome, e-mail e senha são obrigatórios.' }, 400);
       }
@@ -73,6 +73,7 @@ Deno.serve(async (req) => {
           name,
           sector: sector || 'Comercial',
           role: role || 'Colaborador',
+          since: since || undefined,
           access_level: access_level === 'admin' ? 'admin' : 'colaborador',
         })
         .eq('id', created.user.id);
@@ -83,7 +84,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'update') {
-      const { userId, name, email, password, sector, role, access_level } = body;
+      const { userId, name, email, password, sector, role, since, access_level } = body;
       if (!userId) return json({ error: 'Colaborador não informado.' }, 400);
       if (password && String(password).length < 6) {
         return json({ error: 'A senha precisa ter pelo menos 6 caracteres.' }, 400);
@@ -105,6 +106,7 @@ Deno.serve(async (req) => {
           email: email || undefined,
           sector: sector || 'Comercial',
           role: role || 'Colaborador',
+          since: since || undefined,
           access_level: access_level === 'admin' ? 'admin' : 'colaborador',
         })
         .eq('id', userId);

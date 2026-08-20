@@ -351,13 +351,20 @@
                   <input type="text" id="userRole" placeholder="Ex.: Analista" required />
                 </div>
               </div>
-              <div class="field">
-                <label for="userAccessLevel">Nível de acesso</label>
-                <select id="userAccessLevel">
-                  <option value="colaborador">Colaborador</option>
-                  <option value="admin">Administrador</option>
-                </select>
+              <div class="admin-field-row">
+                <div class="field">
+                  <label for="userSince">Data de admissão</label>
+                  <input type="date" id="userSince" required />
+                </div>
+                <div class="field">
+                  <label for="userAccessLevel">Nível de acesso</label>
+                  <select id="userAccessLevel">
+                    <option value="colaborador">Colaborador</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                </div>
               </div>
+              <span class="hint" style="display:block;margin-top:-12px;margin-bottom:16px;">Use a data real de entrada na empresa, não o dia do cadastro no portal.</span>
               <p class="auth-error" id="userFormError" hidden></p>
               <button type="submit" class="btn btn-primary btn-block" id="userFormSubmit">Cadastrar e criar acesso</button>
               <button type="button" class="btn btn-ghost btn-block" id="userFormCancel" style="margin-top:10px;" hidden>Cancelar edição</button>
@@ -996,6 +1003,7 @@
     /* ── Segurança: colaboradores reais, vindos da tabela profiles ──── */
     $('#userSector').innerHTML = '';
     SECTORS.forEach((s) => $('#userSector').appendChild(new Option(s, s)));
+    $('#userSince').value = new Date().toISOString().slice(0, 10);
 
     $('#genPassword').addEventListener('click', () => {
       const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
@@ -1069,6 +1077,7 @@
       $('#userPassword').value = '';
       $('#userSector').value = u.sector || SECTORS[0];
       $('#userRole').value = u.role || '';
+      $('#userSince').value = u.since || '';
       $('#userAccessLevel').value = u.access_level || 'colaborador';
       clearSelectedPhoto();
       $('#userFormSubmit').textContent = 'Salvar alterações';
@@ -1083,6 +1092,7 @@
       $('#userPasswordLabel').textContent = 'Senha provisória';
       $('#userPasswordHint').textContent = 'Compartilhe essa senha com a pessoa fora daqui; ela pode trocar depois.';
       $('#userSector').value = SECTORS[0];
+      $('#userSince').value = new Date().toISOString().slice(0, 10);
       clearSelectedPhoto();
       $('#userFormSubmit').textContent = 'Cadastrar e criar acesso';
       $('#userFormCancel').hidden = true;
@@ -1192,9 +1202,10 @@
       const password = $('#userPassword').value;
       const sector = $('#userSector').value;
       const role = $('#userRole').value.trim();
+      const since = $('#userSince').value;
       const accessLevel = $('#userAccessLevel').value;
 
-      if (!name || !email || !role) return;
+      if (!name || !email || !role || !since) return;
       if (!editingUserId && !password) {
         errorEl.textContent = 'Informe uma senha provisória.';
         errorEl.hidden = false;
@@ -1211,8 +1222,8 @@
 
       try {
         const payload = editingUserId
-          ? { action: 'update', userId: editingUserId, name, email, password: password || undefined, sector, role, access_level: accessLevel }
-          : { action: 'create', name, email, password, sector, role, access_level: accessLevel };
+          ? { action: 'update', userId: editingUserId, name, email, password: password || undefined, sector, role, since, access_level: accessLevel }
+          : { action: 'create', name, email, password, sector, role, since, access_level: accessLevel };
         const result = await callUserFn(payload);
 
         const photoFile = userPhoto.files[0];
