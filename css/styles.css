@@ -805,17 +805,15 @@ body.confirm-lock{ overflow: hidden; }
 .org-node-wrap.has-parent{ padding-top: 34px; }
 .org-node-wrap.has-parent::before{
   content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 34px;
-  background: var(--line-strong);
+  background: var(--line-strong); z-index: 0;
 }
-.org-children{ display: flex; justify-content: center; position: relative; padding-top: 34px; }
-.org-children > .org-node-wrap{ padding-top: 0; }
-.org-children > .org-node-wrap::before{ height: 34px; }
-.org-children > .org-node-wrap::after{
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--line-strong);
+.org-node-wrap.has-parent::after{
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--line-strong); z-index: 0;
 }
-.org-children > .org-node-wrap:first-child::after{ left: 50%; }
-.org-children > .org-node-wrap:last-child::after{ right: 50%; }
-.org-children > .org-node-wrap:only-child::after{ display: none; }
+.org-children > .org-node-wrap.has-parent:first-child::after{ left: 50%; }
+.org-children > .org-node-wrap.has-parent:last-child::after{ right: 50%; }
+.org-children > .org-node-wrap.has-parent:only-child::after{ display: none; }
+.org-children{ display: flex; justify-content: center; position: relative; }
 .org-node-wrap.is-collapsed > .org-children{ display: none; }
 
 .org-card{
