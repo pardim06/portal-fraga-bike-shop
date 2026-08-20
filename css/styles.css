@@ -813,11 +813,11 @@ body.confirm-lock{ overflow: hidden; }
 .org-children > .org-node-wrap.has-parent:first-child::after{ left: 50%; }
 .org-children > .org-node-wrap.has-parent:last-child::after{ right: 50%; }
 .org-children > .org-node-wrap.has-parent:only-child::after{ display: none; }
-.org-children{ display: flex; justify-content: center; position: relative; }
+.org-children{ display: flex; justify-content: center; position: relative; z-index: 0; }
 .org-node-wrap.is-collapsed > .org-children{ display: none; }
 
 .org-card{
-  position: relative; width: 172px; background: var(--surface); border: 1px solid var(--line);
+  position: relative; z-index: 1; width: 172px; background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--r-lg); padding: 18px 14px 16px; text-align: center; cursor: pointer;
   box-shadow: var(--shadow-sm); transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   animation: org-in 320ms ease both;
