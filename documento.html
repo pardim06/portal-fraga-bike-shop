@@ -28,7 +28,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=11"></script>
+<script src="js/app.js?v=12"></script>
 <script>
   const session = Fraga.init('documentos');
   if (session) {
@@ -40,7 +40,7 @@
 
     if (!doc) {
       $('#docRoot').appendChild(el('div', { class: 'empty-state' },
-        icon('file'),
+        el('div', { html: icon('file') }),
         el('p', {}, 'Nenhum documento disponível.')
       ));
     } else {

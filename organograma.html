@@ -29,7 +29,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/app.js?v=11"></script>
+<script src="js/app.js?v=12"></script>
 <script>
   const session = Fraga.init('organograma');
   if (session) {
@@ -38,7 +38,7 @@
 
     function openDetail(person) {
       const overlay = el('div', { class: 'confirm-overlay' });
-      const closeBtn = el('button', { type: 'button', class: 'org-detail-close', 'aria-label': 'Fechar' }, icon('x'));
+      const closeBtn = el('button', { type: 'button', class: 'org-detail-close', 'aria-label': 'Fechar', html: icon('x') });
       const actions = el('div', { class: 'org-detail-actions' });
 
       const phoneDigits = (person.phone || '').replace(/\D/g, '');
@@ -109,7 +109,7 @@
     state.getOrgChart().then((people) => {
       if (!people.length) {
         root.appendChild(el('div', { class: 'empty-state' },
-          icon('users'),
+          el('div', { html: icon('users') }),
           el('p', {}, 'Ninguém cadastrado no organograma ainda.'),
           el('p', { style: 'font-size:12.5px;color:var(--ink-faint);' }, 'Peça para um administrador cadastrar em Painel Admin → Organograma.')
         ));
