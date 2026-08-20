@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=15">
+<link rel="stylesheet" href="css/styles.css?v=16">
 </head>
 <body data-page="organograma">
 <div class="overlay-scrim" id="scrim"></div>
@@ -133,7 +133,42 @@
       });
       wrapEl.appendChild(tree);
       root.appendChild(wrapEl);
+      enableDragScroll(wrapEl);
     });
+
+    // Click-and-drag to pan the tree sideways, since it can get wider than
+    // the screen. A native scrollbar still works, it's just visually hidden.
+    function enableDragScroll(container) {
+      let isDown = false;
+      let moved = false;
+      let startX = 0;
+      let startScrollLeft = 0;
+
+      container.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        isDown = true;
+        moved = false;
+        startX = e.pageX;
+        startScrollLeft = container.scrollLeft;
+        container.classList.add('is-dragging');
+      });
+      window.addEventListener('mouseup', () => {
+        if (!isDown) return;
+        isDown = false;
+        container.classList.remove('is-dragging');
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        const dx = e.pageX - startX;
+        if (Math.abs(dx) > 4) moved = true;
+        container.scrollLeft = startScrollLeft - dx;
+      });
+      // Swallow the click that follows a drag, so it doesn't open a card's
+      // contact details right after panning the view.
+      container.addEventListener('click', (e) => {
+        if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; }
+      }, true);
+    }
   }
 </script>
 </body>

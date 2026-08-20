@@ -799,7 +799,12 @@ body.confirm-lock{ overflow: hidden; }
 .confirm-actions .btn{ flex: 1; }
 
 /* Organograma */
-.org-wrap{ overflow-x: auto; padding: 44px 24px 70px; }
+.org-wrap{
+  overflow-x: auto; padding: 44px 24px 70px; cursor: grab;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.org-wrap::-webkit-scrollbar{ display: none; }
+.org-wrap.is-dragging{ cursor: grabbing; user-select: none; -webkit-user-select: none; }
 .org-tree{ display: flex; justify-content: center; gap: 0; min-width: max-content; }
 .org-node-wrap{ display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 18px; }
 
